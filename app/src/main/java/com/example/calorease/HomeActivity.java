@@ -40,7 +40,9 @@ public class HomeActivity extends AppCompatActivity {
         btnProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(HomeActivity.this, "Profil sayfası geliyor...", Toast.LENGTH_SHORT).show();
+                Toast.makeText(HomeActivity.this, "Profile tıkladın!", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(HomeActivity.this, ProfileActivity.class);
+                startActivity(intent);
             }
         });
 
@@ -57,7 +59,9 @@ public class HomeActivity extends AppCompatActivity {
         btnAddWater.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(HomeActivity.this, "Su ekleye tıkladın!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(HomeActivity.this, "Profile tıkladın!", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(HomeActivity.this, ProfileActivity.class);
+                startActivity(intent);
             }
         });
 
