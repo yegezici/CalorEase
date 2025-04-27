@@ -1,15 +1,21 @@
 package com.example.calorease;
 
 public class Meal {
-    private String name;
-    private String calories;  // Kalori bilgisi
-    private String carbs;     // Karbonhidrat miktarı
-    private String protein;   // Protein miktarı
-    private String fat;       // Yağ miktarı
-    private int imageResource;  // Yemek görseli
 
-    // Constructor
-    public Meal(String name, String calories, String carbs, String protein, String fat, int imageResource) {
+    private String mealId; // YENİ EKLENDİ
+    private String name;
+    private String calories;
+    private String carbs;
+    private String protein;
+    private String fat;
+    private int imageResource;
+
+    public Meal() {
+        // Boş constructor
+    }
+
+    public Meal(String mealId, String name, String calories, String carbs, String protein, String fat, int imageResource) {
+        this.mealId = mealId;
         this.name = name;
         this.calories = calories;
         this.carbs = carbs;
@@ -18,7 +24,10 @@ public class Meal {
         this.imageResource = imageResource;
     }
 
-    // Getter ve Setter'lar
+    public String getMealId() {
+        return mealId;
+    }
+
     public String getName() {
         return name;
     }

@@ -10,7 +10,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
@@ -47,9 +46,9 @@ public class MealAdapter extends RecyclerView.Adapter<MealAdapter.MealViewHolder
         // Yemek kartına tıklanınca MealDetailActivity'ye geç
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(context, MealDetailActivity.class);
-            intent.putExtra("mealId", meal.getName()); // Şimdilik mealId yok, mealName kullanıyoruz
+            intent.putExtra("mealId", meal.getMealId()); // mealId gönderiyoruz
             intent.putExtra("mealName", meal.getName());
-            intent.putExtra("mealCategory", selectedCategory); // Öğün bilgisi
+            intent.putExtra("mealCategory", selectedCategory); // HATALI KISIM DÜZELTİLDİ
             context.startActivity(intent);
         });
     }
@@ -73,7 +72,7 @@ public class MealAdapter extends RecyclerView.Adapter<MealAdapter.MealViewHolder
             mealProtein = itemView.findViewById(R.id.meal_protein);
             mealFat = itemView.findViewById(R.id.meal_fat);
             mealIcon = itemView.findViewById(R.id.meal_icon);
-            addButton = itemView.findViewById(R.id.btn_add_meal); // Şu anda kullanılmıyor ama dursun.
+            addButton = itemView.findViewById(R.id.btn_add_meal); // Şu an kullanılmıyor ama ileride kullanılabilir.
         }
     }
 }

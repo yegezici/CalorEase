@@ -11,7 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class HomeActivity extends AppCompatActivity {
 
-    private ImageButton btnMenu, btnProfile, btnAddMeal, btnAddWater, btnAddExercise;
+    private ImageButton btnMenu, btnProfile, btnAddMeal, btnAddWater, btnAddExercise, btnDietHistory;
     private ProgressBar progressCalories;
 
     @Override
@@ -25,6 +25,7 @@ public class HomeActivity extends AppCompatActivity {
         btnAddMeal = findViewById(R.id.btn_add_meal);
         btnAddWater = findViewById(R.id.btn_add_water);
         btnAddExercise = findViewById(R.id.btn_add_exercise);
+        btnDietHistory = findViewById(R.id.btn_diet_history); // YENİ Diyetim butonu
         progressCalories = findViewById(R.id.progress_calories);
 
         // Menu Butonu
@@ -65,6 +66,15 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Toast.makeText(HomeActivity.this, "Egzersiz ekleye tıkladın!", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Diyetim Butonu (YENİ)
+        btnDietHistory.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(HomeActivity.this, DietHistoryActivity.class);
+                startActivity(intent);
             }
         });
 

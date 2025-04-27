@@ -1,53 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#FAFAFA">
 
-    <!-- Sol Üstte: Hamburger Menü -->
+    <!-- Menü ve Profil Butonları -->
     <ImageButton
         android:id="@+id/btn_menu"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:layout_margin="16dp"
         android:background="@android:color/transparent"
-        android:scaleType="centerInside"
         android:src="@drawable/ic_menu"
-        android:contentDescription="Menu Button"
+        android:scaleType="centerInside"
+        android:contentDescription="Menu"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"/>
 
-    <!-- Sağ Üstte: Profil Avatar -->
     <ImageButton
         android:id="@+id/btn_profile"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:layout_margin="16dp"
         android:background="@android:color/transparent"
-        android:scaleType="centerInside"
         android:src="@drawable/ic_profile"
-        android:contentDescription="Profile Button"
+        android:scaleType="centerInside"
+        android:contentDescription="Profile"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="16dp"/>
 
-    <!-- Günlük Kalori İlerlemesi -->
+    <!-- Günlük Kalori İlerleme Çubuğu -->
     <ProgressBar
         android:id="@+id/progress_calories"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="0dp"
-        android:layout_height="20dp"
-        android:progress="40"
+        android:layout_height="24dp"
+        android:progress="50"
         android:max="100"
-        android:progressDrawable="@drawable/progress_bar_custom"
         app:layout_constraintTop_toBottomOf="@id/btn_menu"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintWidth_percent="0.8"
-        android:layout_marginTop="32dp" />
+        android:layout_marginTop="32dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp" />
 
-    <!-- Hızlı Ekleme Alanı -->
+    <!-- Hızlı Ekleme Butonları (Yemek, Su, Egzersiz, Diyetim) -->
     <LinearLayout
         android:id="@+id/quick_add_section"
         android:layout_width="wrap_content"
@@ -91,6 +92,18 @@
             android:layout_margin="8dp"
             android:src="@drawable/ic_dumbell"
             android:contentDescription="Add Exercise" />
+
+        <!-- Diyetim (YENİ ve Hazır Görselli) -->
+        <ImageButton
+            android:id="@+id/btn_diet_history"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:background="@android:color/transparent"
+            android:scaleType="centerInside"
+            android:layout_margin="8dp"
+            android:src="@drawable/common_google_signin_btn_icon_light"
+            android:contentDescription="Diet History" />
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

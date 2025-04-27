@@ -65,17 +65,24 @@ public class MealListActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 mealList.clear();
                 for (DataSnapshot mealSnapshot : snapshot.getChildren()) {
+                    String mealId = mealSnapshot.getKey(); // YENİ
                     String name = mealSnapshot.child("name").getValue(String.class);
-                    int calories = mealSnapshot.child("calories").getValue(Integer.class);
-                    int protein = mealSnapshot.child("protein").getValue(Integer.class);
-                    int carbs = mealSnapshot.child("carbs").getValue(Integer.class);
-                    int fat = mealSnapshot.child("fat").getValue(Integer.class);
+                    Integer caloriesValue = mealSnapshot.child("calories").getValue(Integer.class);
+                    int calories = caloriesValue != null ? caloriesValue : 0;
 
-                    Meal meal = new Meal(name, calories + " kcal", carbs + "g", protein + "g", fat + "g", android.R.drawable.ic_menu_zoom);
+                    Integer proteinValue = mealSnapshot.child("protein").getValue(Integer.class);
+                    int protein = proteinValue != null ? proteinValue : 0;
+
+                    Integer carbsValue = mealSnapshot.child("carbs").getValue(Integer.class);
+                    int carbs = carbsValue != null ? carbsValue : 0;
+
+                    Integer fatValue = mealSnapshot.child("fat").getValue(Integer.class);
+                    int fat = fatValue != null ? fatValue : 0;
+
+                    Meal meal = new Meal(mealId, name, calories + " kcal", carbs + "g", protein + "g", fat + "g", android.R.drawable.ic_menu_zoom);
                     mealList.add(meal);
 
-                    // Debug için log
-                    System.out.println("Firebase'den gelen yemek: " + name);
+                    System.out.println("Firebase'den gelen yemek: " + name + " (mealId: " + mealId + ")");
                 }
                 mealAdapter.notifyDataSetChanged();
             }
@@ -86,4 +93,5 @@ public class MealListActivity extends AppCompatActivity {
             }
         });
     }
+
 }
