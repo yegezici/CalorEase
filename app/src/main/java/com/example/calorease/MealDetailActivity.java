@@ -10,8 +10,11 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -25,7 +28,7 @@ public class MealDetailActivity extends AppCompatActivity {
 
     private String mealId;
     private String mealName;
-    private String mealCategory; // Breakfast, Lunch, Dinner, Snack
+    private String mealCategory;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,19 +67,55 @@ public class MealDetailActivity extends AppCompatActivity {
                 .child(getTodayDate())
                 .child(mealCategory);
 
-        String pushId = userMealsRef.push().getKey();
+        userMealsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                boolean mealExists = false;
+                String existingMealKey = null;
+                long existingQuantity = 0;
 
-        if (pushId != null) {
-            userMealsRef.child(pushId).child("mealId").setValue(mealId);
-            userMealsRef.child(pushId).child("quantity").setValue(quantity)
-                    .addOnSuccessListener(aVoid -> {
-                        Toast.makeText(this, mealName + " " + quantity + "g eklendi!", Toast.LENGTH_SHORT).show();
-                        finish(); // Meal List ekranına geri dön
-                    })
-                    .addOnFailureListener(e -> {
-                        Toast.makeText(this, "Hata: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    });
-        }
+                for (DataSnapshot mealSnapshot : snapshot.getChildren()) {
+                    String existingMealId = mealSnapshot.child("mealId").getValue(String.class);
+                    if (existingMealId != null && existingMealId.equals(mealId)) {
+                        mealExists = true;
+                        existingMealKey = mealSnapshot.getKey();
+                        Long quantityLong = mealSnapshot.child("quantity").getValue(Long.class);
+                        existingQuantity = (quantityLong != null) ? quantityLong : 0;
+                        break;
+                    }
+                }
+
+                if (mealExists && existingMealKey != null) {
+                    long updatedQuantity = existingQuantity + quantity;
+                    userMealsRef.child(existingMealKey).child("quantity").setValue(updatedQuantity)
+                            .addOnSuccessListener(aVoid -> {
+                                Toast.makeText(MealDetailActivity.this, mealName + " miktarı güncellendi!", Toast.LENGTH_SHORT).show();
+                                finish();
+                            })
+                            .addOnFailureListener(e -> {
+                                Toast.makeText(MealDetailActivity.this, "Hata: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            });
+                } else {
+                    String pushId = userMealsRef.push().getKey();
+                    if (pushId != null) {
+                        userMealsRef.child(pushId).child("mealId").setValue(mealId);
+                        userMealsRef.child(pushId).child("quantity").setValue(quantity)
+                                .addOnSuccessListener(aVoid -> {
+                                    Toast.makeText(MealDetailActivity.this, mealName + " " + quantity + "g eklendi!", Toast.LENGTH_SHORT).show();
+                                    finish();
+                                })
+                                .addOnFailureListener(e -> {
+                                    Toast.makeText(MealDetailActivity.this, "Hata: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                });
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(MealDetailActivity.this, "Veri ekleme iptal edildi!", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private String getTodayDate() {

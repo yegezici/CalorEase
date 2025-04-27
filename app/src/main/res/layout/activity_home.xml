@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#FAFAFA">
@@ -11,98 +11,147 @@
         android:id="@+id/btn_menu"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:background="@android:color/transparent"
-        android:src="@drawable/ic_menu"
-        android:scaleType="centerInside"
-        android:contentDescription="Menu"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"/>
+        android:layout_marginTop="16dp"
+        android:background="@android:color/transparent"
+        android:contentDescription="Menu"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_menu"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageButton
         android:id="@+id/btn_profile"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:background="@android:color/transparent"
-        android:src="@drawable/ic_profile"
-        android:scaleType="centerInside"
-        android:contentDescription="Profile"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginTop="16dp"/>
+        android:background="@android:color/transparent"
+        android:contentDescription="Profile"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_profile"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <!-- Günlük Kalori İlerleme Çubuğu -->
+
+    <!-- Kalori, Protein, Karbonhidrat ve Yağ Bilgileri --><![CDATA[
+
+    />
+
+    ]]><!-- Hızlı Ekleme Butonları (Yemek, Su, Egzersiz, Diyetim) -->
+
     <ProgressBar
         android:id="@+id/progress_calories"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="0dp"
         android:layout_height="24dp"
-        android:progress="50"
-        android:max="100"
-        app:layout_constraintTop_toBottomOf="@id/btn_menu"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="32dp"
         android:layout_marginStart="32dp"
-        android:layout_marginEnd="32dp" />
+        android:layout_marginTop="72dp"
+        android:layout_marginEnd="32dp"
+        android:max="100"
+        android:progress="50"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btn_menu" />
 
-    <!-- Hızlı Ekleme Butonları (Yemek, Su, Egzersiz, Diyetim) -->
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:padding="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/progress_calories">
+
+        <TextView
+            android:id="@+id/tv_calories"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Günlük Kalori: 0 kcal"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_protein"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Protein: 0 g"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/tv_carbs"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Karbonhidrat: 0 g"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/tv_fat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Yağ: 0 g"
+            android:textSize="16sp" />
+    </LinearLayout>
+
     <LinearLayout
         android:id="@+id/quick_add_section"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:layout_marginTop="68dp"
         android:gravity="center"
-        app:layout_constraintTop_toBottomOf="@id/progress_calories"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="32dp">
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout"
+        tools:layout_editor_absoluteX="45dp">
 
         <!-- Yemek Ekle -->
         <ImageButton
             android:id="@+id/btn_add_meal"
             android:layout_width="64dp"
             android:layout_height="64dp"
-            android:background="@android:color/transparent"
-            android:scaleType="centerInside"
             android:layout_margin="8dp"
-            android:src="@drawable/ic_add_food"
-            android:contentDescription="Add Meal" />
+            android:background="@android:color/transparent"
+            android:contentDescription="Add Meal"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_add_food" />
 
         <!-- Su Ekle -->
         <ImageButton
             android:id="@+id/btn_add_water"
             android:layout_width="64dp"
             android:layout_height="64dp"
-            android:background="@android:color/transparent"
-            android:scaleType="centerInside"
             android:layout_margin="8dp"
-            android:src="@drawable/ic_add_water"
-            android:contentDescription="Add Water" />
+            android:background="@android:color/transparent"
+            android:contentDescription="Add Water"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_add_water" />
 
         <!-- Egzersiz Ekle -->
         <ImageButton
             android:id="@+id/btn_add_exercise"
             android:layout_width="64dp"
             android:layout_height="64dp"
-            android:background="@android:color/transparent"
-            android:scaleType="centerInside"
             android:layout_margin="8dp"
-            android:src="@drawable/ic_dumbell"
-            android:contentDescription="Add Exercise" />
+            android:background="@android:color/transparent"
+            android:contentDescription="Add Exercise"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_dumbell" />
 
         <!-- Diyetim (YENİ ve Hazır Görselli) -->
         <ImageButton
             android:id="@+id/btn_diet_history"
             android:layout_width="64dp"
             android:layout_height="64dp"
-            android:background="@android:color/transparent"
-            android:scaleType="centerInside"
             android:layout_margin="8dp"
-            android:src="@drawable/common_google_signin_btn_icon_light"
-            android:contentDescription="Diet History" />
+            android:background="@android:color/transparent"
+            android:contentDescription="Diet History"
+            android:scaleType="centerInside"
+            android:src="@drawable/common_google_signin_btn_icon_light" />
 
     </LinearLayout>
 

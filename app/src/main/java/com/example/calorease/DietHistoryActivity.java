@@ -1,117 +1,113 @@
 package com.example.calorease;
 
+import android.app.DatePickerDialog;
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.widget.ViewPager2;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.Calendar;
 import java.util.Locale;
 
 public class DietHistoryActivity extends AppCompatActivity {
 
     private TextView textTodayDate;
-    private RecyclerView recyclerView;
-    private DietMealAdapter dietMealAdapter;
-    private List<DietMeal> dietMealList;
+    private Button buttonSelectDate;
+    private TabLayout tabLayout;
+    private ViewPager2 viewPager;
+    private DietPagerAdapter pagerAdapter;
 
-    private DatabaseReference userMealsRef;
-    private DatabaseReference mealsRef;
+    private String selectedDate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_diet_history);
 
-        textTodayDate = findViewById(R.id.text_today_date);
-        recyclerView = findViewById(R.id.recycler_view_diet_history);
+        textTodayDate = findViewById(R.id.text_selected_date);
+        buttonSelectDate = findViewById(R.id.button_select_date);
+        tabLayout = findViewById(R.id.tab_layout);
+        viewPager = findViewById(R.id.view_pager);
 
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        dietMealList = new ArrayList<>();
-        dietMealAdapter = new DietMealAdapter(this, dietMealList);
-        recyclerView.setAdapter(dietMealAdapter);
+        selectedDate = getTodayDatabaseFormat();
+        textTodayDate.setText("Tarih: " + getTodayFormatted());
 
-        String today = getTodayFormatted();
-        textTodayDate.setText("Tarih: " + today);
+        pagerAdapter = new DietPagerAdapter(this, selectedDate);
+        viewPager.setAdapter(pagerAdapter);
 
-        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        userMealsRef = FirebaseDatabase.getInstance().getReference("Users").child(userId).child("Meals").child(getTodayDatabaseFormat());
-        mealsRef = FirebaseDatabase.getInstance().getReference("Meals");
+        new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
+            switch (position) {
+                case 0:
+                    tab.setText("Kahvaltı");
+                    break;
+                case 1:
+                    tab.setText("Öğle Yemeği");
+                    break;
+                case 2:
+                    tab.setText("Akşam Yemeği");
+                    break;
+                case 3:
+                    tab.setText("Atıştırmalık");
+                    break;
+            }
+        }).attach();
 
-        loadDietHistory();
+        buttonSelectDate.setOnClickListener(v -> openDatePicker());
     }
 
-    private void loadDietHistory() {
-        userMealsRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                dietMealList.clear();
-                for (DataSnapshot mealCategorySnapshot : snapshot.getChildren()) {
-                    for (DataSnapshot mealSnapshot : mealCategorySnapshot.getChildren()) {
-                        String mealId = mealSnapshot.child("mealId").getValue(String.class);
-                        Integer quantityValue = mealSnapshot.child("quantity").getValue(Integer.class);
-                        int quantity = quantityValue != null ? quantityValue : 0;
+    private void openDatePicker() {
+        Calendar calendar = Calendar.getInstance();
+        DatePickerDialog datePickerDialog = new DatePickerDialog(this,
+                (view, year, month, dayOfMonth) -> {
+                    selectedDate = String.format(Locale.getDefault(), "%04d-%02d-%02d", year, month + 1, dayOfMonth);
+                    String displayDate = String.format(Locale.getDefault(), "%d %s %d", dayOfMonth,
+                            calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault()), year);
+                    textTodayDate.setText("Tarih: " + displayDate);
 
-                        mealsRef.child(mealId).addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot mealDetailsSnapshot) {
-                                String name = mealDetailsSnapshot.child("name").getValue(String.class);
+                    // YENİ: Adapter'ı tamamen yeniden oluştur
+                    pagerAdapter = new DietPagerAdapter(this, selectedDate);
+                    viewPager.setAdapter(pagerAdapter);
 
-                                Integer caloriesValue = mealDetailsSnapshot.child("calories").getValue(Integer.class);
-                                int calories = caloriesValue != null ? caloriesValue : 0;
+                    new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
+                        switch (position) {
+                            case 0:
+                                tab.setText("Kahvaltı");
+                                break;
+                            case 1:
+                                tab.setText("Öğle Yemeği");
+                                break;
+                            case 2:
+                                tab.setText("Akşam Yemeği");
+                                break;
+                            case 3:
+                                tab.setText("Atıştırmalık");
+                                break;
+                        }
+                    }).attach();
 
-                                Integer proteinValue = mealDetailsSnapshot.child("protein").getValue(Integer.class);
-                                int protein = proteinValue != null ? proteinValue : 0;
-
-                                Integer carbsValue = mealDetailsSnapshot.child("carbs").getValue(Integer.class);
-                                int carbs = carbsValue != null ? carbsValue : 0;
-
-                                Integer fatValue = mealDetailsSnapshot.child("fat").getValue(Integer.class);
-                                int fat = fatValue != null ? fatValue : 0;
-
-                                DietMeal dietMeal = new DietMeal(name, quantity, calories, protein, carbs, fat);
-                                dietMealList.add(dietMeal);
-                                dietMealAdapter.notifyDataSetChanged();
-                            }
-
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError error) {
-                                Toast.makeText(DietHistoryActivity.this, "Yemek detayı yüklenemedi!", Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(DietHistoryActivity.this, "Veri yüklenemedi!", Toast.LENGTH_SHORT).show();
-            }
-        });
+                },
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+        );
+        datePickerDialog.show();
     }
 
 
     private String getTodayFormatted() {
         SimpleDateFormat sdf = new SimpleDateFormat("d MMMM yyyy", new Locale("tr", "TR"));
-        return sdf.format(new Date());
+        return sdf.format(Calendar.getInstance().getTime());
     }
 
     private String getTodayDatabaseFormat() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        return sdf.format(new Date());
+        return sdf.format(Calendar.getInstance().getTime());
     }
 }
