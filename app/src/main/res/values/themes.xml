@@ -1,0 +1,25 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="Base.Theme.CalorEase" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/black</item> <!-- Mor yerine siyahı kullan -->
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/black</item> <!-- Secondary'ı da koyu yap -->
+        <item name="colorOutline">#BDBDBD</item> <!-- TextInput kenar rengi -->
+        <item name="colorOnSurfaceVariant">#757575</item> <!-- HintText rengi (gri ton) -->
+    </style>
+
+    <style name="Theme.CalorEase" parent="Base.Theme.CalorEase" />
+
+    <style name="CalorEaseTextInput" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="boxBackgroundColor">#FAFAFA</item> <!-- Hafif açık gri arka plan -->
+        <item name="boxCornerRadiusTopStart">16dp</item>
+        <item name="boxCornerRadiusTopEnd">16dp</item>
+        <item name="boxCornerRadiusBottomStart">16dp</item>
+        <item name="boxCornerRadiusBottomEnd">16dp</item>
+        <item name="boxStrokeColor">#BDBDBD</item> <!-- Açık gri çizgi -->
+        <item name="boxStrokeWidth">1dp</item>
+        <item name="boxStrokeWidthFocused">2dp</item>
+    </style>
+
+
+</resources>

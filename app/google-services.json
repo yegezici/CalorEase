@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "801687173823",
+    "firebase_url": "https://calorease-0ceaab14-default-rtdb.firebaseio.com",
+    "project_id": "calorease-0ceaab14",
+    "storage_bucket": "calorease-0ceaab14.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:801687173823:android:88ad44553357e377e3e40a",
+        "android_client_info": {
+          "package_name": "com.example.calorease"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD3qFxHRicxNXr3-mU_EUJT84F-Ltd5LQg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

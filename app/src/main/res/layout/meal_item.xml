@@ -1,0 +1,83 @@
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    android:elevation="4dp"
+    android:radius="8dp">
+
+<LinearLayout
+android:orientation="horizontal"
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:padding="16dp">
+
+<!-- Yemek İkonu -->
+<ImageView
+    android:id="@+id/meal_icon"
+    android:layout_width="64dp"
+    android:layout_height="64dp"
+    android:src="@drawable/ic_grilled_chicken"
+android:contentDescription="Meal Icon" />
+
+<!-- Yemek Adı ve Makro Bilgisi -->
+<LinearLayout
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="16dp"
+    android:layout_weight="1">
+
+    <TextView
+        android:id="@+id/meal_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Yemek Adı"
+        android:textSize="18sp"
+        android:textColor="#212121" />
+
+    <TextView
+        android:id="@+id/meal_calories"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="150 kcal"
+        android:textSize="14sp"
+        android:textColor="#888888" />
+
+    <!-- Makro Besin Değerleri -->
+    <TextView
+        android:id="@+id/meal_carbs"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Karbonhidrat: 30g"
+        android:textSize="14sp"
+        android:textColor="#888888" />
+
+    <TextView
+        android:id="@+id/meal_protein"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Protein: 10g"
+        android:textSize="14sp"
+        android:textColor="#888888" />
+
+    <TextView
+        android:id="@+id/meal_fat"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Yağ: 5g"
+        android:textSize="14sp"
+        android:textColor="#888888" />
+</LinearLayout>
+
+<!-- Ekle Butonu -->
+<ImageButton
+    android:id="@+id/btn_add_meal"
+    android:layout_width="48dp"
+    android:layout_height="48dp"
+    android:layout_gravity="center_vertical"
+    android:src="@android:drawable/ic_input_add"
+    android:background="@android:color/transparent"
+    android:contentDescription="Add Meal" />
+</LinearLayout>
+    </androidx.cardview.widget.CardView>
