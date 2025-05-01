@@ -128,19 +128,33 @@ public class HomeActivity extends AppCompatActivity {
 
                 for (DataSnapshot mealTypeSnapshot : snapshot.getChildren()) {
                     for (DataSnapshot mealSnapshot : mealTypeSnapshot.getChildren()) {
-                        String mealId = mealSnapshot.child("mealId").getValue(String.class);
                         Long quantityLong = mealSnapshot.child("quantity").getValue(Long.class);
                         int quantity = (quantityLong != null) ? quantityLong.intValue() : 0;
 
+                        String mealId = mealSnapshot.child("mealId").getValue(String.class);
+
                         if (mealId != null && quantity > 0) {
+                            // Hazır yemek → Detayları "Meals" tablosundan çek
                             Task<DataSnapshot> task = FirebaseDatabase.getInstance()
                                     .getReference("Meals")
                                     .child(mealId)
                                     .get();
                             mealTasks.add(new Pair<>(task, quantity));
+                        } else if (quantity > 0) {
+                            // Custom yemek → Veriler zaten burada
+                            Long baseCalories = mealSnapshot.child("calories").getValue(Long.class);
+                            Long baseProtein = mealSnapshot.child("protein").getValue(Long.class);
+                            Long baseCarbs = mealSnapshot.child("carbs").getValue(Long.class);
+                            Long baseFat = mealSnapshot.child("fat").getValue(Long.class);
+
+                            if (baseCalories != null) totalCalories += baseCalories * quantity / 100;
+                            if (baseProtein != null) totalProtein += baseProtein * quantity / 100;
+                            if (baseCarbs != null) totalCarbs += baseCarbs * quantity / 100;
+                            if (baseFat != null) totalFat += baseFat * quantity / 100;
                         }
                     }
                 }
+
 
                 List<Task<?>> onlyTasks = new ArrayList<>();
                 for (Pair<Task<DataSnapshot>, Integer> pair : mealTasks) {

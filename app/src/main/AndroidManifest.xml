@@ -37,6 +37,9 @@
             android:name=".LogIn"
             android:exported="false" />
         <activity android:name=".ProfileActivity" />
+        <activity android:name=".SelectMealOptionActivity" />
+        <activity android:name=".CustomMealActivity" />
+
 
 
         <activity

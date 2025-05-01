@@ -26,7 +26,7 @@ public class SelectMealCategory extends AppCompatActivity {
         btnBreakfast.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                openMealList("Kahvaltı");
+                openMealOption("Kahvaltı");
             }
         });
 
@@ -34,7 +34,7 @@ public class SelectMealCategory extends AppCompatActivity {
         btnLunch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                openMealList("Öğle Yemeği");
+                openMealOption("Öğle Yemeği");
             }
         });
 
@@ -42,7 +42,7 @@ public class SelectMealCategory extends AppCompatActivity {
         btnDinner.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                openMealList("Akşam Yemeği");
+                openMealOption("Akşam Yemeği");
             }
         });
 
@@ -50,14 +50,15 @@ public class SelectMealCategory extends AppCompatActivity {
         btnSnack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                openMealList("Atıştırmalık");
+                openMealOption("Atıştırmalık");
             }
         });
     }
 
-    private void openMealList(String category) {
-        Intent intent = new Intent(SelectMealCategory.this, MealListActivity.class);
+    private void openMealOption(String category) {
+        Intent intent = new Intent(SelectMealCategory.this, SelectMealOptionActivity.class);
         intent.putExtra("category", category);
         startActivity(intent);
     }
+
 }
