@@ -2,9 +2,11 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_home"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FAFAFA">
+    android:background="#FAFAFA"
+    tools:context=".HomeActivity">
 
     <!-- Menü ve Profil Butonları -->
     <ImageButton
@@ -33,39 +35,63 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Günlük Kalori İlerleme Çubuğu -->
+    <!-- Kullanıcıya Selam -->
+    <TextView
+        android:id="@+id/text_greeting"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Merhaba, kullanıcı!"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="#333333"
+        android:layout_marginTop="24dp"
+        app:layout_constraintTop_toBottomOf="@+id/btn_menu"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Kalori, Protein, Karbonhidrat ve Yağ Bilgileri --><![CDATA[
+    <!-- Kalori İlerleme Başlığı -->
+    <TextView
+        android:id="@+id/text_progress_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Kalori Hedefi"
+        android:textSize="16sp"
+        android:textColor="#555555"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/text_greeting"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-    />
-
-    ]]><!-- Hızlı Ekleme Butonları (Yemek, Su, Egzersiz, Diyetim) -->
-
+    <!-- ProgressBar -->
     <ProgressBar
         android:id="@+id/progress_calories"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="0dp"
         android:layout_height="24dp"
+        android:layout_marginTop="12dp"
         android:layout_marginStart="32dp"
-        android:layout_marginTop="72dp"
         android:layout_marginEnd="32dp"
-        android:max="100"
-        android:progress="50"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        android:max="2000"
+        android:progressDrawable="@drawable/progress_bar"
+        app:layout_constraintTop_toBottomOf="@id/text_progress_label"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btn_menu" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- Kalori & Makro Bilgileri Kartı -->
+
+    <!-- Hızlı Ekle Başlığı -->
     <LinearLayout
         android:id="@+id/linearLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginHorizontal="32dp"
+        android:layout_marginTop="52dp"
+        android:background="@drawable/bg_card"
+        android:elevation="4dp"
         android:gravity="center_horizontal"
         android:orientation="vertical"
-        android:padding="8dp"
+        android:padding="16dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/progress_calories">
 
@@ -99,15 +125,32 @@
             android:textSize="16sp" />
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/quick_add_section"
+    <TextView
+        android:id="@+id/text_quick_add"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="68dp"
+        android:text="Hızlı Ekle"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="#333"
+        app:layout_constraintTop_toBottomOf="@id/linearLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="32dp" />
+
+    <!-- Hızlı Ekleme Butonları -->
+
+    <LinearLayout
+        android:id="@+id/quick_add_section"
+        android:layout_width="402dp"
+        android:layout_height="65dp"
+        android:layout_marginTop="12dp"
         android:gravity="center"
         android:orientation="horizontal"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout"
-        tools:layout_editor_absoluteX="45dp">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/text_quick_add">
 
         <!-- Yemek Ekle -->
         <ImageButton
@@ -142,7 +185,7 @@
             android:scaleType="centerInside"
             android:src="@drawable/ic_dumbell" />
 
-        <!-- Diyetim (YENİ ve Hazır Görselli) -->
+        <!-- Diyet Geçmişi -->
         <ImageButton
             android:id="@+id/btn_diet_history"
             android:layout_width="64dp"
@@ -153,6 +196,67 @@
             android:scaleType="centerInside"
             android:src="@drawable/common_google_signin_btn_icon_light" />
 
+        <!-- Yeni: Tarifler -->
+        <ImageButton
+            android:id="@+id/btn_add_recipe"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_margin="8dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="Tarifler"
+            android:scaleType="centerInside"
+            android:src="@drawable/common_google_signin_btn_icon_light" />
     </LinearLayout>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/card_daily_tip"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginTop="24dp"
+        app:cardElevation="4dp"
+        app:cardCornerRadius="16dp"
+        android:background="#FFFFFF"
+        app:layout_constraintTop_toBottomOf="@id/quick_add_section"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:id="@+id/text_daily_tip"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:text="Günün ipucu: Yavaş yemek daha az kalori almanı sağlar 🥗"
+            android:textSize="16sp"
+            android:textColor="#444" />
+    </androidx.cardview.widget.CardView>
+    <Button
+        android:id="@+id/btn_recommendation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Diyet önerisi al"
+        android:textAllCaps="false"
+        android:textSize="16sp"
+        android:backgroundTint="#4CAF50"
+        android:textColor="#FFFFFF"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="32dp"
+        app:layout_constraintTop_toBottomOf="@id/card_daily_tip"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+    <TextView
+        android:id="@+id/text_calorie_ratio"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0 / 1500 kcal"
+        android:textSize="14sp"
+        android:textColor="#444444"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@id/progress_calories"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -55,7 +55,7 @@ public class ProfileActivity extends AppCompatActivity {
 
             SharedPreferences sharedPreferences = getSharedPreferences("LoginPrefs", MODE_PRIVATE);
             SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putBoolean("isRemembered", false); // Beni hatırla bilgisini sıfırla
+            editor.putBoolean("isRemembered", false);
             editor.apply();
 
             Intent intent = new Intent(ProfileActivity.this, LogIn.class);
@@ -63,6 +63,7 @@ public class ProfileActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         });
+
 
     }
 }

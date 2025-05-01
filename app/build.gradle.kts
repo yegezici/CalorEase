@@ -33,8 +33,7 @@ android {
 }
 
 dependencies {
-    implementation("com.google.android.material:material:1.4.0")
-    implementation("com.google.android.material:material:1.6.0")
+    implementation("com.google.android.material:material:1.10.0")
     implementation("androidx.activity:activity-ktx:1.2.4")
     implementation("androidx.constraintlayout:constraintlayout:2.1.2")
     implementation("com.google.firebase:firebase-auth:21.0.1")

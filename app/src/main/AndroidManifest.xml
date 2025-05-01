@@ -36,8 +36,8 @@
         <activity
             android:name=".LogIn"
             android:exported="false" />
-        <activity
-            android:name=".ProfileActivity" />
+        <activity android:name=".ProfileActivity" />
+
 
         <activity
             android:name=".MainActivity"

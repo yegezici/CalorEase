@@ -3,6 +3,7 @@ package com.example.calorease;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -31,7 +32,9 @@ public class HomeActivity extends AppCompatActivity {
 
     private ImageButton btnMenu, btnProfile, btnAddMeal, btnAddWater, btnAddExercise, btnDietHistory;
     private ProgressBar progressCalories;
-    private TextView tvCalories, tvProtein, tvCarbs, tvFat;
+    private Button btnRecommendation;
+    private TextView tvCalories, tvProtein, tvCarbs, tvFat, textGreeting, textDailyTip, textCalorieRatio;
+
 
     private int totalCalories = 0;
     private int totalProtein = 0;
@@ -43,7 +46,7 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        loadTodayMealsAndUpdateProgress();
+        fetchUserCalorieGoalAndLoadMeals();
     }
 
 
@@ -58,6 +61,11 @@ public class HomeActivity extends AppCompatActivity {
         btnAddWater = findViewById(R.id.btn_add_water);
         btnAddExercise = findViewById(R.id.btn_add_exercise);
         btnDietHistory = findViewById(R.id.btn_diet_history);
+        textDailyTip = findViewById(R.id.text_daily_tip);
+        textDailyTip.setText("Günün ipucu: Yavaş yemek daha az kalori almanı sağlar 🥗");
+        btnRecommendation = findViewById(R.id.btn_recommendation);
+        textCalorieRatio = findViewById(R.id.text_calorie_ratio);
+
 
         progressCalories = findViewById(R.id.progress_calories);
 
@@ -65,7 +73,8 @@ public class HomeActivity extends AppCompatActivity {
         tvProtein = findViewById(R.id.tv_protein);
         tvCarbs = findViewById(R.id.tv_carbs);
         tvFat = findViewById(R.id.tv_fat);
-
+        textGreeting = findViewById(R.id.text_greeting);
+        loadUserName();
         progressCalories.setMax(dailyCalorieGoal);
 
         btnMenu.setOnClickListener(v ->
@@ -170,14 +179,78 @@ public class HomeActivity extends AppCompatActivity {
     private void updateProgress(int calories, int protein, int carbs, int fat) {
         progressCalories.setProgress(calories);
 
+        // Kalori oran metni
+        textCalorieRatio.setText(calories + " / " + dailyCalorieGoal + " kcal");
+
+        // Renkli çubuk değişimi
+        float percent = (dailyCalorieGoal > 0) ? (calories * 100f / dailyCalorieGoal) : 0f;
+
+        if (percent <= 25) {
+            progressCalories.setProgressDrawable(getDrawable(R.drawable.progress_danger));
+        } else if (percent <= 75) {
+            progressCalories.setProgressDrawable(getDrawable(R.drawable.progress_warning));
+        } else {
+            progressCalories.setProgressDrawable(getDrawable(R.drawable.progress_success));
+        }
+
         tvCalories.setText("Günlük Kalori: " + calories + " kcal");
         tvProtein.setText("Protein: " + protein + " g");
         tvCarbs.setText("Karbonhidrat: " + carbs + " g");
         tvFat.setText("Yağ: " + fat + " g");
     }
 
+
     private String getTodayDate() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         return sdf.format(new Date());
     }
+    private void fetchUserCalorieGoalAndLoadMeals() {
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        DatabaseReference userRef = FirebaseDatabase.getInstance()
+                .getReference("Users")
+                .child(userId)
+                .child("calorieGoal");
+
+        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Long goal = snapshot.getValue(Long.class);
+                if (goal != null && goal > 0) {
+                    dailyCalorieGoal = goal.intValue();
+                    progressCalories.setMax(dailyCalorieGoal);  // hedefe göre ProgressBar max değerini ayarla
+                }
+                loadTodayMealsAndUpdateProgress(); // sonra yemekleri yükle
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(HomeActivity.this, "Hedef kalorisi alınamadı.", Toast.LENGTH_SHORT).show();
+                loadTodayMealsAndUpdateProgress(); // yine de yüklemeyi dene
+            }
+        });
+    }
+    private void loadUserName() {
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference userRef = FirebaseDatabase.getInstance()
+                .getReference("Users")
+                .child(userId)
+                .child("firstName");
+
+        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String name = snapshot.getValue(String.class);
+                if (name != null) {
+                    textGreeting.setText("Merhaba, " + name + "!");
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                textGreeting.setText("Merhaba!");
+            }
+        });
+    }
+
 }
