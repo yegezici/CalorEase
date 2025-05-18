@@ -9,12 +9,14 @@
     tools:context=".HomeActivity">
 
     <!-- Menü ve Profil Butonları -->
+
+    <!-- Kullanıcıya Selam -->
     <ImageButton
         android:id="@+id/btn_menu"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="40dp"
         android:background="@android:color/transparent"
         android:contentDescription="Menu"
         android:scaleType="centerInside"
@@ -26,7 +28,7 @@
         android:id="@+id/btn_profile"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="40dp"
         android:layout_marginEnd="16dp"
         android:background="@android:color/transparent"
         android:contentDescription="Profile"
@@ -35,7 +37,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Kullanıcıya Selam -->
     <TextView
         android:id="@+id/text_greeting"
         android:layout_width="wrap_content"
@@ -194,7 +195,7 @@
             android:background="@android:color/transparent"
             android:contentDescription="Diet History"
             android:scaleType="centerInside"
-            android:src="@drawable/common_google_signin_btn_icon_light" />
+            android:src="@drawable/ic_history" />
 
         <!-- Yeni: Tarifler -->
         <ImageButton

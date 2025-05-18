@@ -1,0 +1,61 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="24dp"
+    android:background="#FAFAFA">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <EditText
+            android:id="@+id/edit_meal_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Yemek Adı"
+            android:inputType="textCapWords" />
+
+        <EditText
+            android:id="@+id/edit_calories"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Kalori (kcal)"
+            android:inputType="number" />
+
+        <EditText
+            android:id="@+id/edit_protein"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Protein (g)"
+            android:inputType="number" />
+
+        <EditText
+            android:id="@+id/edit_carbs"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Karbonhidrat (g)"
+            android:inputType="number" />
+
+        <EditText
+            android:id="@+id/edit_fat"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Yağ (g)"
+            android:inputType="number" />
+
+        <EditText
+            android:id="@+id/edit_quantity"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Porsiyon Miktarı (gram)"
+            android:inputType="number" />
+
+        <Button
+            android:id="@+id/btn_save_custom_meal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Yemeği Ekle"
+            android:layout_marginTop="24dp"/>
+    </LinearLayout>
+</ScrollView>

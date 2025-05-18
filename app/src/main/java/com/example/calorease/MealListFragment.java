@@ -91,22 +91,15 @@ public class MealListFragment extends Fragment {
                     int quantity = quantityValue != null ? quantityValue : 0;
 
                     if (mealId != null) {
+                        // HAZIR yemek (mealId varsa)
                         mealsRef.child(mealId).addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot mealDetailsSnapshot) {
                                 String name = mealDetailsSnapshot.child("name").getValue(String.class);
-
-                                Integer caloriesValue = mealDetailsSnapshot.child("calories").getValue(Integer.class);
-                                int calories = caloriesValue != null ? caloriesValue : 0;
-
-                                Integer proteinValue = mealDetailsSnapshot.child("protein").getValue(Integer.class);
-                                int protein = proteinValue != null ? proteinValue : 0;
-
-                                Integer carbsValue = mealDetailsSnapshot.child("carbs").getValue(Integer.class);
-                                int carbs = carbsValue != null ? carbsValue : 0;
-
-                                Integer fatValue = mealDetailsSnapshot.child("fat").getValue(Integer.class);
-                                int fat = fatValue != null ? fatValue : 0;
+                                int calories = getValue(mealDetailsSnapshot, "calories");
+                                int protein = getValue(mealDetailsSnapshot, "protein");
+                                int carbs = getValue(mealDetailsSnapshot, "carbs");
+                                int fat = getValue(mealDetailsSnapshot, "fat");
 
                                 DietMeal dietMeal = new DietMeal(name, quantity, calories, protein, carbs, fat);
                                 dietMealList.add(dietMeal);
@@ -118,8 +111,22 @@ public class MealListFragment extends Fragment {
                                 Toast.makeText(getContext(), "Yemek detayı yüklenemedi!", Toast.LENGTH_SHORT).show();
                             }
                         });
+                    } else {
+                        // CUSTOM yemek (mealId yok)
+                        String name = mealSnapshot.child("name").getValue(String.class);
+                        int calories = getValue(mealSnapshot, "calories");
+                        int protein = getValue(mealSnapshot, "protein");
+                        int carbs = getValue(mealSnapshot, "carbs");
+                        int fat = getValue(mealSnapshot, "fat");
+
+                        if (name != null && quantity > 0) {
+                            DietMeal dietMeal = new DietMeal(name, quantity, calories, protein, carbs, fat);
+                            dietMealList.add(dietMeal);
+                        }
                     }
                 }
+
+                dietMealAdapter.notifyDataSetChanged();
             }
 
             @Override
@@ -128,4 +135,9 @@ public class MealListFragment extends Fragment {
             }
         });
     }
+    private int getValue(DataSnapshot snapshot, String key) {
+        Long value = snapshot.child(key).getValue(Long.class);
+        return value != null ? value.intValue() : 0;
+    }
+
 }
