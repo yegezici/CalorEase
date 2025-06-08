@@ -13,14 +13,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class MealListFragment extends Fragment {
 
@@ -72,72 +68,64 @@ public class MealListFragment extends Fragment {
 
     private void loadMeals() {
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        DatabaseReference userMealsRef = FirebaseDatabase.getInstance()
-                .getReference("Users")
-                .child(userId)
-                .child("Meals")
-                .child(selectedDate)
-                .child(mealType);
 
-        DatabaseReference mealsRef = FirebaseDatabase.getInstance().getReference("Meals");
-
-        userMealsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        DatabaseManager.getInstance().getMealInstances(userId, selectedDate, mealType, new DatabaseManager.MealInstanceListCallback() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
+            public void onSuccess(List<Map<String, Object>> mealEntries) {
                 dietMealList.clear();
-                for (DataSnapshot mealSnapshot : snapshot.getChildren()) {
-                    String mealId = mealSnapshot.child("mealId").getValue(String.class);
-                    Integer quantityValue = mealSnapshot.child("quantity").getValue(Integer.class);
-                    int quantity = quantityValue != null ? quantityValue : 0;
+
+                for (Map<String, Object> entry : mealEntries) {
+                    String mealId = (String) entry.get("mealId");
+                    Long quantityLong = (Long) entry.get("quantity");
+                    int quantity = quantityLong != null ? quantityLong.intValue() : 0;
 
                     if (mealId != null) {
-                        // HAZIR yemek (mealId varsa)
-                        mealsRef.child(mealId).addListenerForSingleValueEvent(new ValueEventListener() {
+                        // Hazır yemek
+                        DatabaseManager.getInstance().fetchMealById(mealId, new DatabaseManager.MealDetailCallback() {
                             @Override
-                            public void onDataChange(@NonNull DataSnapshot mealDetailsSnapshot) {
-                                String name = mealDetailsSnapshot.child("name").getValue(String.class);
-                                int calories = getValue(mealDetailsSnapshot, "calories");
-                                int protein = getValue(mealDetailsSnapshot, "protein");
-                                int carbs = getValue(mealDetailsSnapshot, "carbs");
-                                int fat = getValue(mealDetailsSnapshot, "fat");
+                            public void onSuccess(Map<String, Object> mealData) {
+                                String name = (String) mealData.get("name");
+                                String calories = (String) (mealData.get("calories"));
+                                String protein = (String) (mealData.get("protein"));
+                                String carbs = (String) (mealData.get("carb"));
+                                String fat = (String) (mealData.get("fat"));
 
-                                DietMeal dietMeal = new DietMeal(name, quantity, calories, protein, carbs, fat);
-                                dietMealList.add(dietMeal);
+                                dietMealList.add(new DietMeal(name, quantity, Double.parseDouble(calories), Double.parseDouble(protein),
+                                        Double.parseDouble(carbs), Double.parseDouble(fat)));
                                 dietMealAdapter.notifyDataSetChanged();
                             }
 
                             @Override
-                            public void onCancelled(@NonNull DatabaseError error) {
-                                Toast.makeText(getContext(), "Yemek detayı yüklenemedi!", Toast.LENGTH_SHORT).show();
+                            public void onFailure(String error) {
+                                Toast.makeText(getContext(), "Yemek detayı yüklenemedi", Toast.LENGTH_SHORT).show();
                             }
                         });
                     } else {
-                        // CUSTOM yemek (mealId yok)
-                        String name = mealSnapshot.child("name").getValue(String.class);
-                        int calories = getValue(mealSnapshot, "calories");
-                        int protein = getValue(mealSnapshot, "protein");
-                        int carbs = getValue(mealSnapshot, "carbs");
-                        int fat = getValue(mealSnapshot, "fat");
+                        // Özel yemek
+                        String name = (String) entry.get("name");
+                        int calories = toInt(entry.get("calories"));
+                        int protein = toInt(entry.get("protein"));
+                        int carbs = toInt(entry.get("carb"));
+                        int fat = toInt(entry.get("fat"));
 
-                        if (name != null && quantity > 0) {
-                            DietMeal dietMeal = new DietMeal(name, quantity, calories, protein, carbs, fat);
-                            dietMealList.add(dietMeal);
-                        }
+                        dietMealList.add(new DietMeal(name, quantity, calories, protein, carbs, fat));
+                        dietMealAdapter.notifyDataSetChanged();
                     }
                 }
-
-                dietMealAdapter.notifyDataSetChanged();
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(getContext(), "Veri yüklenemedi!", Toast.LENGTH_SHORT).show();
+            public void onFailure(String error) {
+                Toast.makeText(getContext(), "Veri yüklenemedi: " + error, Toast.LENGTH_SHORT).show();
             }
         });
     }
-    private int getValue(DataSnapshot snapshot, String key) {
-        Long value = snapshot.child(key).getValue(Long.class);
-        return value != null ? value.intValue() : 0;
-    }
 
+    private int toInt(Object value) {
+        if (value instanceof Number) {
+            return ((Number) value).intValue();
+        } else {
+            return 0;
+        }
+    }
 }

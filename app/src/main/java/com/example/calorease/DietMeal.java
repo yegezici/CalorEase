@@ -3,15 +3,15 @@ package com.example.calorease;
 public class DietMeal {
     public String name;
     public int quantity;
-    public int calories;
-    public int protein;
-    public int carbs;
-    public int fat;
+    public double calories;
+    public double protein;
+    public double carbs;
+    public double fat;
 
     public DietMeal() {
     }
 
-    public DietMeal(String name, int quantity, int calories, int protein, int carbs, int fat) {
+    public DietMeal(String name, int quantity, double calories, double protein, double carbs, double fat) {
         this.name = name;
         this.quantity = quantity;
         this.calories = calories;
