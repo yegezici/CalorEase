@@ -1,13 +1,29 @@
 package com.example.calorease;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.SetOptions;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+
 
 public class DatabaseManager {
 
@@ -163,5 +179,78 @@ public class DatabaseManager {
                 })
                 .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
     }
+
+    public void addMealInstance(String mealId, int quantity, String mealCategory, DatabaseCallback callback) {
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        String today = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+
+        CollectionReference mealCollection = firestore.collection("MealInstances")
+                .document(userId)
+                .collection(today)
+                .document(mealCategory)
+                .collection("Items");
+
+        mealCollection.get().addOnSuccessListener(query -> {
+            boolean found = false;
+            for (DocumentSnapshot doc : query.getDocuments()) {
+                if (mealId.equals(doc.getString("mealId"))) {
+                    long existingQuantity = doc.getLong("quantity") != null ? doc.getLong("quantity") : 0;
+                    long updatedQuantity = existingQuantity + quantity;
+
+                    doc.getReference().update("quantity", updatedQuantity)
+                            .addOnSuccessListener(unused -> callback.onSuccess())
+                            .addOnFailureListener(callback::onFailure);
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) {
+                Map<String, Object> mealInstance = new HashMap<>();
+                mealInstance.put("mealId", mealId);
+                mealInstance.put("quantity", quantity);
+
+                mealCollection.add(mealInstance)
+                        .addOnSuccessListener(unused -> callback.onSuccess())
+                        .addOnFailureListener(callback::onFailure);
+            }
+
+        }).addOnFailureListener(callback::onFailure);
+    }
+
+    public interface DatabaseCallback {
+        void onSuccess();
+        void onFailure(Exception e);
+    }
+
+
+    public interface MealInstanceListCallback {
+        void onSuccess(List<Map<String, Object>> mealEntries);
+        void onFailure(String error);
+    }
+
+    public void getMealInstances(String userId, String date, String mealCategory, MealInstanceListCallback callback) {
+        firestore.collection("MealInstances")
+                .document(userId)
+                .collection(date)
+                .document(mealCategory)
+                .collection("Items")
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    List<Map<String, Object>> list = new ArrayList<>();
+                    for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                        Map<String, Object> item = doc.getData();
+                        list.add(item);
+                    }
+                    callback.onSuccess(list);
+                })
+                .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
+    }
+
+
+
+    
+
+
 
 }

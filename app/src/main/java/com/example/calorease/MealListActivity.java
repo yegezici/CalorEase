@@ -56,14 +56,39 @@ public class MealListActivity extends AppCompatActivity {
                 for (Map<String, Object> mealMap : mealsData) {
                     String mealId = (String) mealMap.get("id");
                     String name = (String) mealMap.get("name");
-                    int calories = toInt(mealMap.get("calories"));
-                    int protein = toInt(mealMap.get("protein"));
-                    int carbs = toInt(mealMap.get("carb"));
-                    int fat = toInt(mealMap.get("fat"));
+                    double protein = 0.0;
+                    double fat = 0.0;
+                    double carb = 0.0;
+                    double calories = 0.0;
+
+                    try {
+                        protein = Double.parseDouble((String) mealMap.get("protein"));
+                    } catch (Exception e) {
+                        e.printStackTrace(); // veya loglama yapabilirsin
+                    }
+
+                    try {
+                        fat = Double.parseDouble((String) mealMap.get("fat"));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    try {
+                        carb = Double.parseDouble((String) mealMap.get("carb"));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    try {
+                        calories = Double.parseDouble((String) mealMap.get("calories"));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
 
                     Meal meal = new Meal(mealId, name,
                             calories + " kcal",
-                            carbs + "g",
+                            carb + "g",
                             protein + "g",
                             fat + "g",
                             android.R.drawable.ic_menu_zoom);
