@@ -1,7 +1,10 @@
 package com.example.calorease;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -18,6 +21,7 @@ public class CustomMealActivity extends AppCompatActivity {
 
     private EditText editName, editCalories, editProtein, editCarbs, editFat, editQuantity;
     private Button btnSave;
+    private CheckBox checkboxUnknownCalories;
 
     private String mealCategory;
 
@@ -36,8 +40,38 @@ public class CustomMealActivity extends AppCompatActivity {
         editFat = findViewById(R.id.edit_fat);
         editQuantity = findViewById(R.id.edit_quantity);
         btnSave = findViewById(R.id.btn_save_custom_meal);
+        checkboxUnknownCalories = findViewById(R.id.checkbox_unknown_calories);
+
+        checkboxUnknownCalories.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            editCalories.setEnabled(!isChecked);
+            if (isChecked) {
+                calculateCalories();
+            }
+        });
+
+        TextWatcher watcher = new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (checkboxUnknownCalories.isChecked()) {
+                    calculateCalories();
+                }
+            }
+            @Override public void afterTextChanged(Editable s) {}
+        };
+
+        editProtein.addTextChangedListener(watcher);
+        editCarbs.addTextChangedListener(watcher);
+        editFat.addTextChangedListener(watcher);
 
         btnSave.setOnClickListener(v -> saveMeal());
+    }
+
+    private void calculateCalories() {
+        int protein = parseInt(editProtein);
+        int carbs = parseInt(editCarbs);
+        int fat = parseInt(editFat);
+        int totalCalories = (protein * 4) + (carbs * 4) + (fat * 9);
+        editCalories.setText(String.valueOf(totalCalories));
     }
 
     private void saveMeal() {
@@ -48,7 +82,9 @@ public class CustomMealActivity extends AppCompatActivity {
         int fat = parseInt(editFat);
         int quantity = parseInt(editQuantity);
 
-        if (name.isEmpty() || quantity <= 0 || calories <= 0) {
+        boolean autoCalculated = checkboxUnknownCalories.isChecked();
+
+        if (name.isEmpty() || quantity <= 0 || (!autoCalculated && calories <= 0)) {
             Toast.makeText(this, "Lütfen tüm alanları doğru doldurun", Toast.LENGTH_SHORT).show();
             return;
         }

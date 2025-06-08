@@ -23,6 +23,14 @@
             android:hint="Kalori (kcal)"
             android:inputType="number" />
 
+        <!-- ✅ Yeni eklendi -->
+        <CheckBox
+            android:id="@+id/checkbox_unknown_calories"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Kalori bilgisini bilmiyorum"
+            android:layout_marginTop="8dp" />
+
         <EditText
             android:id="@+id/edit_protein"
             android:layout_width="match_parent"
