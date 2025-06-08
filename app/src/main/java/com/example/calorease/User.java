@@ -1,17 +1,17 @@
 package com.example.calorease;
 
 public class User {
-    public String userId;
-    public String email;
-    public String firstName;
-    public String lastName;
-    public int height; // cm
-    public int currentWeight; // kg
-    public int targetWeight; // kg
-    public int dailyCalorieGoal; // kalori
+
+    private String userId;
+    private String email;
+    private String firstName;
+    private String lastName;
+    private int height;
+    private int currentWeight;
+    private int targetWeight;
+    private int dailyCalorieGoal;
 
     public User() {
-        // Boş constructor Firebase için lazım
     }
 
     public User(String userId, String email, String firstName, String lastName, int height, int currentWeight, int targetWeight, int dailyCalorieGoal) {
@@ -24,4 +24,39 @@ public class User {
         this.targetWeight = targetWeight;
         this.dailyCalorieGoal = dailyCalorieGoal;
     }
+
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public int getCurrentWeight() {
+        return currentWeight;
+    }
+
+    public int getTargetWeight() {
+        return targetWeight;
+    }
+
+    public int getDailyCalorieGoal() {
+        return dailyCalorieGoal;
+    }
+
+
 }

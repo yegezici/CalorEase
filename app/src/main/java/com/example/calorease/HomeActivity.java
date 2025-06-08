@@ -9,24 +9,16 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import android.util.Pair;
 
-import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -34,7 +26,6 @@ public class HomeActivity extends AppCompatActivity {
     private ProgressBar progressCalories;
     private Button btnRecommendation;
     private TextView tvCalories, tvProtein, tvCarbs, tvFat, textGreeting, textDailyTip, textCalorieRatio;
-
 
     private int totalCalories = 0;
     private int totalProtein = 0;
@@ -48,7 +39,6 @@ public class HomeActivity extends AppCompatActivity {
         super.onResume();
         fetchUserCalorieGoalAndLoadMeals();
     }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,137 +56,125 @@ public class HomeActivity extends AppCompatActivity {
         btnRecommendation = findViewById(R.id.btn_recommendation);
         textCalorieRatio = findViewById(R.id.text_calorie_ratio);
 
-
         progressCalories = findViewById(R.id.progress_calories);
-
         tvCalories = findViewById(R.id.tv_calories);
         tvProtein = findViewById(R.id.tv_protein);
         tvCarbs = findViewById(R.id.tv_carbs);
         tvFat = findViewById(R.id.tv_fat);
         textGreeting = findViewById(R.id.text_greeting);
+
         loadUserName();
         progressCalories.setMax(dailyCalorieGoal);
 
-        btnMenu.setOnClickListener(v ->
-                Toast.makeText(HomeActivity.this, "Menü açılıyor...", Toast.LENGTH_SHORT).show());
-
-        btnProfile.setOnClickListener(v -> {
-            Intent intent = new Intent(HomeActivity.this, ProfileActivity.class);
-            startActivity(intent);
-        });
-
-        btnAddMeal.setOnClickListener(v -> {
-            Intent intent = new Intent(HomeActivity.this, SelectMealCategory.class);
-            startActivity(intent);
-        });
-
-        btnAddWater.setOnClickListener(v ->
-                Toast.makeText(HomeActivity.this, "Su ekleme henüz aktif değil", Toast.LENGTH_SHORT).show());
-
-        btnAddExercise.setOnClickListener(v ->
-                Toast.makeText(HomeActivity.this, "Egzersiz ekleme henüz aktif değil", Toast.LENGTH_SHORT).show());
-
-        btnDietHistory.setOnClickListener(v -> {
-            Intent intent = new Intent(HomeActivity.this, DietHistoryActivity.class);
-            startActivity(intent);
-        });
-
-
+        btnMenu.setOnClickListener(v -> Toast.makeText(this, "Menü açılıyor...", Toast.LENGTH_SHORT).show());
+        btnProfile.setOnClickListener(v -> startActivity(new Intent(this, ProfileActivity.class)));
+        btnAddMeal.setOnClickListener(v -> startActivity(new Intent(this, SelectMealCategory.class)));
+        btnAddWater.setOnClickListener(v -> Toast.makeText(this, "Su ekleme henüz aktif değil", Toast.LENGTH_SHORT).show());
+        btnAddExercise.setOnClickListener(v -> Toast.makeText(this, "Egzersiz ekleme henüz aktif değil", Toast.LENGTH_SHORT).show());
+        btnDietHistory.setOnClickListener(v -> startActivity(new Intent(this, DietHistoryActivity.class)));
+        btnRecommendation.setOnClickListener(v -> startActivity(new Intent(this, ChatbotActivity.class)));
     }
 
+    private void loadUserName() {
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseManager.getInstance().fetchUser(userId, new DatabaseManager.UserCallback() {
+            @Override
+            public void onSuccess(Map<String, Object> userData) {
+                String name = (String) userData.get("firstName");
+                textGreeting.setText("Merhaba, " + (name != null ? name : "") + "!");
+            }
 
+            @Override
+            public void onFailure(String error) {
+                textGreeting.setText("Merhaba!");
+            }
+        });
+    }
+
+    private void fetchUserCalorieGoalAndLoadMeals() {
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseManager.getInstance().fetchUser(userId, new DatabaseManager.UserCallback() {
+            @Override
+            public void onSuccess(Map<String, Object> userData) {
+                Object goalObj = userData.get("dailyCalorieGoal");
+                if (goalObj instanceof Number) {
+                    dailyCalorieGoal = ((Number) goalObj).intValue();
+                    progressCalories.setMax(dailyCalorieGoal);
+                }
+                loadTodayMealsAndUpdateProgress();
+            }
+
+            @Override
+            public void onFailure(String error) {
+                Toast.makeText(HomeActivity.this, "Hedef kalorisi alınamadı.", Toast.LENGTH_SHORT).show();
+                loadTodayMealsAndUpdateProgress();
+            }
+        });
+    }
 
     private void loadTodayMealsAndUpdateProgress() {
-        String todayDate = getTodayDate();
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        String today = getTodayDate();
 
-        DatabaseReference userMealsRef = FirebaseDatabase.getInstance()
-                .getReference("Users")
-                .child(userId)
-                .child("Meals")
-                .child(todayDate);
-
-        userMealsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        DatabaseManager.getInstance().fetchMealInstancesForToday(userId, today, new DatabaseManager.MealInstanceCallback() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
+            public void onSuccess(List<Map<String, Object>> mealInstances) {
                 totalCalories = 0;
                 totalProtein = 0;
                 totalCarbs = 0;
                 totalFat = 0;
 
-                List<Pair<Task<DataSnapshot>, Integer>> mealTasks = new ArrayList<>();
+                for (Map<String, Object> instance : mealInstances) {
+                    List<Map<String, Object>> meals = (List<Map<String, Object>>) instance.get("meals");
+                    if (meals != null) {
+                        for (Map<String, Object> mealEntry : meals) {
+                            String mealID = (String) mealEntry.get("mealID");
+                            Object qtyObj = mealEntry.get("quantity");
+                            int quantity = (qtyObj instanceof Number) ? ((Number) qtyObj).intValue() : 0;
 
-                for (DataSnapshot mealTypeSnapshot : snapshot.getChildren()) {
-                    for (DataSnapshot mealSnapshot : mealTypeSnapshot.getChildren()) {
-                        Long quantityLong = mealSnapshot.child("quantity").getValue(Long.class);
-                        int quantity = (quantityLong != null) ? quantityLong.intValue() : 0;
+                            if (mealID != null && quantity > 0) {
+                                DatabaseManager.getInstance().fetchMealById(mealID, new DatabaseManager.MealDetailCallback() {
+                                    @Override
+                                    public void onSuccess(Map<String, Object> mealData) {
+                                        int cal = toInt(mealData.get("calories"));
+                                        int pro = toInt(mealData.get("protein"));
+                                        int carb = toInt(mealData.get("carb"));
+                                        int fat = toInt(mealData.get("fat"));
 
-                        String mealId = mealSnapshot.child("mealId").getValue(String.class);
+                                        totalCalories += cal * quantity / 100;
+                                        totalProtein += pro * quantity / 100;
+                                        totalCarbs += carb * quantity / 100;
+                                        totalFat += fat * quantity / 100;
 
-                        if (mealId != null && quantity > 0) {
-                            // Hazır yemek → Detayları "Meals" tablosundan çek
-                            Task<DataSnapshot> task = FirebaseDatabase.getInstance()
-                                    .getReference("Meals")
-                                    .child(mealId)
-                                    .get();
-                            mealTasks.add(new Pair<>(task, quantity));
-                        } else if (quantity > 0) {
-                            // Custom yemek → Veriler zaten burada
-                            Long baseCalories = mealSnapshot.child("calories").getValue(Long.class);
-                            Long baseProtein = mealSnapshot.child("protein").getValue(Long.class);
-                            Long baseCarbs = mealSnapshot.child("carbs").getValue(Long.class);
-                            Long baseFat = mealSnapshot.child("fat").getValue(Long.class);
+                                        updateProgress(totalCalories, totalProtein, totalCarbs, totalFat);
+                                    }
 
-                            if (baseCalories != null) totalCalories += baseCalories * quantity / 100;
-                            if (baseProtein != null) totalProtein += baseProtein * quantity / 100;
-                            if (baseCarbs != null) totalCarbs += baseCarbs * quantity / 100;
-                            if (baseFat != null) totalFat += baseFat * quantity / 100;
-                        }
-                    }
-                }
-
-
-                List<Task<?>> onlyTasks = new ArrayList<>();
-                for (Pair<Task<DataSnapshot>, Integer> pair : mealTasks) {
-                    onlyTasks.add(pair.first);
-                }
-
-                Tasks.whenAllComplete(onlyTasks).addOnCompleteListener(task -> {
-                    for (Pair<Task<DataSnapshot>, Integer> pair : mealTasks) {
-                        if (pair.first.isSuccessful()) {
-                            DataSnapshot mealData = pair.first.getResult();
-                            int quantity = pair.second;
-                            if (mealData.exists()) {
-                                Long baseCalories = mealData.child("calories").getValue(Long.class);
-                                Long baseProtein = mealData.child("protein").getValue(Long.class);
-                                Long baseCarbs = mealData.child("carbs").getValue(Long.class);
-                                Long baseFat = mealData.child("fat").getValue(Long.class);
-
-                                if (baseCalories != null) totalCalories += baseCalories * quantity / 100;
-                                if (baseProtein != null) totalProtein += baseProtein * quantity / 100;
-                                if (baseCarbs != null) totalCarbs += baseCarbs * quantity / 100;
-                                if (baseFat != null) totalFat += baseFat * quantity / 100;
+                                    @Override
+                                    public void onFailure(String error) {
+                                        // isteğe bağlı: hata loglanabilir
+                                    }
+                                });
                             }
                         }
                     }
-                    updateProgress(totalCalories, totalProtein, totalCarbs, totalFat);
-                });
+                }
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(HomeActivity.this, "Veri yüklenemedi.", Toast.LENGTH_SHORT).show();
+            public void onFailure(String error) {
+                Toast.makeText(HomeActivity.this, "Veri alınamadı: " + error, Toast.LENGTH_SHORT).show();
             }
         });
     }
 
+    private int toInt(Object obj) {
+        return (obj instanceof Number) ? ((Number) obj).intValue() : 0;
+    }
+
     private void updateProgress(int calories, int protein, int carbs, int fat) {
         progressCalories.setProgress(calories);
-
-        // Kalori oran metni
         textCalorieRatio.setText(calories + " / " + dailyCalorieGoal + " kcal");
 
-        // Renkli çubuk değişimi
         float percent = (dailyCalorieGoal > 0) ? (calories * 100f / dailyCalorieGoal) : 0f;
 
         if (percent <= 25) {
@@ -213,58 +191,7 @@ public class HomeActivity extends AppCompatActivity {
         tvFat.setText("Yağ: " + fat + " g");
     }
 
-
     private String getTodayDate() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        return sdf.format(new Date());
+        return new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
     }
-    private void fetchUserCalorieGoalAndLoadMeals() {
-        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
-        DatabaseReference userRef = FirebaseDatabase.getInstance()
-                .getReference("Users")
-                .child(userId)
-                .child("calorieGoal");
-
-        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Long goal = snapshot.getValue(Long.class);
-                if (goal != null && goal > 0) {
-                    dailyCalorieGoal = goal.intValue();
-                    progressCalories.setMax(dailyCalorieGoal);  // hedefe göre ProgressBar max değerini ayarla
-                }
-                loadTodayMealsAndUpdateProgress(); // sonra yemekleri yükle
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(HomeActivity.this, "Hedef kalorisi alınamadı.", Toast.LENGTH_SHORT).show();
-                loadTodayMealsAndUpdateProgress(); // yine de yüklemeyi dene
-            }
-        });
-    }
-    private void loadUserName() {
-        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        DatabaseReference userRef = FirebaseDatabase.getInstance()
-                .getReference("Users")
-                .child(userId)
-                .child("firstName");
-
-        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                String name = snapshot.getValue(String.class);
-                if (name != null) {
-                    textGreeting.setText("Merhaba, " + name + "!");
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                textGreeting.setText("Merhaba!");
-            }
-        });
-    }
-
 }

@@ -5,20 +5,15 @@ import android.os.Bundle;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class MealListActivity extends AppCompatActivity {
 
@@ -26,7 +21,6 @@ public class MealListActivity extends AppCompatActivity {
     private MealAdapter mealAdapter;
     private List<Meal> mealList;
     private TextView textCategoryTitle;
-    private DatabaseReference mealsRef;
     private FloatingActionButton fabAddMeal;
 
     @Override
@@ -38,8 +32,6 @@ public class MealListActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         textCategoryTitle = findViewById(R.id.text_category_title);
-
-        // SelectMealCategory'den gelen öğün bilgisi
         String category = getIntent().getStringExtra("category");
         textCategoryTitle.setText("Yemek Listesi - " + category);
 
@@ -47,51 +39,48 @@ public class MealListActivity extends AppCompatActivity {
         mealAdapter = new MealAdapter(this, mealList, category);
         recyclerView.setAdapter(mealAdapter);
 
-        mealsRef = FirebaseDatabase.getInstance().getReference("Meals");
-
-        // FloatingActionButton'u bağla
         fabAddMeal = findViewById(R.id.fab_add_meal);
         fabAddMeal.setOnClickListener(v -> {
             Intent intent = new Intent(MealListActivity.this, AddMealActivity.class);
             startActivity(intent);
         });
 
-        loadMealsFromFirebase();
+        loadMealsFromFirestore();
     }
 
-    private void loadMealsFromFirebase() {
-        mealsRef.addValueEventListener(new ValueEventListener() {
+    private void loadMealsFromFirestore() {
+        DatabaseManager.getInstance().getAllMeals(new DatabaseManager.MealListCallback() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
+            public void onSuccess(List<Map<String, Object>> mealsData) {
                 mealList.clear();
-                for (DataSnapshot mealSnapshot : snapshot.getChildren()) {
-                    String mealId = mealSnapshot.getKey(); // YENİ
-                    String name = mealSnapshot.child("name").getValue(String.class);
-                    Integer caloriesValue = mealSnapshot.child("calories").getValue(Integer.class);
-                    int calories = caloriesValue != null ? caloriesValue : 0;
+                for (Map<String, Object> mealMap : mealsData) {
+                    String mealId = (String) mealMap.get("id");
+                    String name = (String) mealMap.get("name");
+                    int calories = toInt(mealMap.get("calories"));
+                    int protein = toInt(mealMap.get("protein"));
+                    int carbs = toInt(mealMap.get("carb"));
+                    int fat = toInt(mealMap.get("fat"));
 
-                    Integer proteinValue = mealSnapshot.child("protein").getValue(Integer.class);
-                    int protein = proteinValue != null ? proteinValue : 0;
+                    Meal meal = new Meal(mealId, name,
+                            calories + " kcal",
+                            carbs + "g",
+                            protein + "g",
+                            fat + "g",
+                            android.R.drawable.ic_menu_zoom);
 
-                    Integer carbsValue = mealSnapshot.child("carbs").getValue(Integer.class);
-                    int carbs = carbsValue != null ? carbsValue : 0;
-
-                    Integer fatValue = mealSnapshot.child("fat").getValue(Integer.class);
-                    int fat = fatValue != null ? fatValue : 0;
-
-                    Meal meal = new Meal(mealId, name, calories + " kcal", carbs + "g", protein + "g", fat + "g", android.R.drawable.ic_menu_zoom);
                     mealList.add(meal);
-
-                    System.out.println("Firebase'den gelen yemek: " + name + " (mealId: " + mealId + ")");
                 }
                 mealAdapter.notifyDataSetChanged();
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(MealListActivity.this, "Yemekler yüklenemedi: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+            public void onFailure(String errorMessage) {
+                Toast.makeText(MealListActivity.this, "Yemekler yüklenemedi: " + errorMessage, Toast.LENGTH_SHORT).show();
             }
         });
     }
 
+    private int toInt(Object value) {
+        return (value instanceof Number) ? ((Number) value).intValue() : 0;
+    }
 }

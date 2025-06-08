@@ -12,6 +12,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:targetApi="31">
+
+        <activity
+            android:name=".ChatbotActivity"
+            android:exported="false" />
         <activity
             android:name=".DietHistoryActivity"
             android:exported="false" />
@@ -39,9 +43,6 @@
         <activity android:name=".ProfileActivity" />
         <activity android:name=".SelectMealOptionActivity" />
         <activity android:name=".CustomMealActivity" />
-
-
-
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -52,5 +53,7 @@
             </intent-filter>
         </activity>
     </application>
+
+    <uses-permission android:name="android.permission.INTERNET"/>
 
 </manifest>

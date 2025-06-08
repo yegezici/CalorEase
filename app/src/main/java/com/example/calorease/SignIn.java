@@ -3,13 +3,11 @@ package com.example.calorease;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -17,13 +15,11 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.Calendar;
 
 public class SignIn extends AppCompatActivity {
 
-    private FirebaseDatabase database = FirebaseDatabase.getInstance();
     private FirebaseAuth auth = FirebaseAuth.getInstance();
     private FirebaseAuth.AuthStateListener firebaseAuthStateListener;
 
@@ -52,14 +48,10 @@ public class SignIn extends AppCompatActivity {
 
         firebaseAuthStateListener = firebaseAuth -> {
             FirebaseUser user = auth.getCurrentUser();
-            if (user != null) {
-                // Kullanıcı oturum açmış
-            } else {
-                // Kullanıcı oturumu kapatmış
-            }
+            // Giriş kontrolü buraya eklenebilir
         };
 
-        // Date Picker Dialog
+        // Date Picker
         EditText birthDate = findViewById(R.id.birthDateEditText);
         birthDate.setOnClickListener(v -> {
             Calendar calendar = Calendar.getInstance();
@@ -75,31 +67,27 @@ public class SignIn extends AppCompatActivity {
             datePickerDialog.show();
         });
 
-        // Register Button Click Listener
+        // Kayıt butonu
         Button register = findViewById(R.id.signupButton);
         register.setOnClickListener(v -> {
             EditText email = findViewById(R.id.emailEditText);
             EditText fullName = findViewById(R.id.fullNameEditText);
             EditText password = findViewById(R.id.passwordEditText);
             EditText birthDateEdit = findViewById(R.id.birthDateEditText);
-
-            // Yeni eklenen alanlar
             EditText heightEditText = findViewById(R.id.heightEditText);
             EditText currentWeightEditText = findViewById(R.id.currentWeightEditText);
             EditText targetWeightEditText = findViewById(R.id.targetWeightEditText);
             EditText dailyCalorieGoalEditText = findViewById(R.id.dailyCalorieGoalEditText);
 
-            // Değerleri al
-            String emailText = email.getText().toString();
-            String fullNameText = fullName.getText().toString();
-            String passwordText = password.getText().toString();
-            String birthDateText = birthDateEdit.getText().toString();
-            String heightText = heightEditText.getText().toString();
-            String currentWeightText = currentWeightEditText.getText().toString();
-            String targetWeightText = targetWeightEditText.getText().toString();
-            String dailyCalorieGoalText = dailyCalorieGoalEditText.getText().toString();
+            String emailText = email.getText().toString().trim();
+            String fullNameText = fullName.getText().toString().trim();
+            String passwordText = password.getText().toString().trim();
+            String birthDateText = birthDateEdit.getText().toString().trim();
+            String heightText = heightEditText.getText().toString().trim();
+            String currentWeightText = currentWeightEditText.getText().toString().trim();
+            String targetWeightText = targetWeightEditText.getText().toString().trim();
+            String dailyCalorieGoalText = dailyCalorieGoalEditText.getText().toString().trim();
 
-            // Validate fields
             if (emailText.isEmpty() || fullNameText.isEmpty() || passwordText.isEmpty()
                     || birthDateText.isEmpty() || heightText.isEmpty()
                     || currentWeightText.isEmpty() || targetWeightText.isEmpty()
@@ -108,7 +96,6 @@ public class SignIn extends AppCompatActivity {
                 return;
             }
 
-            // Firebase Authentication to create a new user
             auth.createUserWithEmailAndPassword(emailText, passwordText)
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
@@ -116,27 +103,33 @@ public class SignIn extends AppCompatActivity {
                             if (user != null) {
                                 String userId = user.getUid();
 
-                                // Kullanıcı nesnesini oluştur
                                 User newUser = new User(
                                         userId,
                                         emailText,
-                                        fullNameText.split(" ")[0], // isim
-                                        fullNameText.contains(" ") ? fullNameText.substring(fullNameText.indexOf(" ") + 1) : "", // soyisim
+                                        fullNameText.split(" ")[0],
+                                        fullNameText.contains(" ") ? fullNameText.substring(fullNameText.indexOf(" ") + 1) : "",
                                         Integer.parseInt(heightText),
                                         Integer.parseInt(currentWeightText),
                                         Integer.parseInt(targetWeightText),
                                         Integer.parseInt(dailyCalorieGoalText)
                                 );
 
-                                // Kullanıcıyı veritabanına kaydet
-                                database.getReference("Users").child(userId).setValue(newUser);
-                            }
+                                DatabaseManager.getInstance().saveUser(newUser, new DatabaseManager.OnUserSavedCallback() {
+                                    @Override
+                                    public void onSuccess() {
+                                        Toast.makeText(getApplicationContext(), "Kullanıcı başarıyla oluşturuldu.", Toast.LENGTH_SHORT).show();
+                                        startActivity(new Intent(SignIn.this, HomeActivity.class));
+                                        finish();
+                                    }
 
-                            Toast.makeText(getApplicationContext(), "Kullanıcı başarıyla oluşturuldu.", Toast.LENGTH_SHORT).show();
-                            startActivity(new Intent(SignIn.this, HomeActivity.class));
-                            finish();
+                                    @Override
+                                    public void onFailure(String errorMessage) {
+                                        Toast.makeText(getApplicationContext(), "Veritabanı hatası: " + errorMessage, Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            }
                         } else {
-                            Toast.makeText(getApplicationContext(), "Kayıt başarısız.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(), "Kayıt başarısız: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     });
         });
