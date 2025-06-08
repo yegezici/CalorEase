@@ -15,13 +15,12 @@ import com.google.firebase.auth.FirebaseAuth;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-import java.util.UUID;
 
 public class CustomMealActivity extends AppCompatActivity {
 
     private EditText editName, editCalories, editProtein, editCarbs, editFat, editQuantity;
     private Button btnSave;
-    private CheckBox checkboxUnknownCalories;
+    private CheckBox checkUnknownCalories;
 
     private String mealCategory;
 
@@ -39,39 +38,41 @@ public class CustomMealActivity extends AppCompatActivity {
         editCarbs = findViewById(R.id.edit_carbs);
         editFat = findViewById(R.id.edit_fat);
         editQuantity = findViewById(R.id.edit_quantity);
+        checkUnknownCalories = findViewById(R.id.checkbox_unknown_calories);
         btnSave = findViewById(R.id.btn_save_custom_meal);
-        checkboxUnknownCalories = findViewById(R.id.checkbox_unknown_calories);
 
-        checkboxUnknownCalories.setOnCheckedChangeListener((buttonView, isChecked) -> {
+        checkUnknownCalories.setOnCheckedChangeListener((buttonView, isChecked) -> {
             editCalories.setEnabled(!isChecked);
             if (isChecked) {
-                calculateCalories();
+                editCalories.setText("");
+                updateCaloriesFromMacros();  // otomatik hesaplama başlat
             }
         });
 
-        TextWatcher watcher = new TextWatcher() {
+        // TextWatcher'ları makro değerler için ekle
+        TextWatcher macroWatcher = new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (checkboxUnknownCalories.isChecked()) {
-                    calculateCalories();
+                if (checkUnknownCalories.isChecked()) {
+                    updateCaloriesFromMacros();
                 }
             }
             @Override public void afterTextChanged(Editable s) {}
         };
 
-        editProtein.addTextChangedListener(watcher);
-        editCarbs.addTextChangedListener(watcher);
-        editFat.addTextChangedListener(watcher);
+        editProtein.addTextChangedListener(macroWatcher);
+        editCarbs.addTextChangedListener(macroWatcher);
+        editFat.addTextChangedListener(macroWatcher);
 
         btnSave.setOnClickListener(v -> saveMeal());
     }
 
-    private void calculateCalories() {
+    private void updateCaloriesFromMacros() {
         int protein = parseInt(editProtein);
         int carbs = parseInt(editCarbs);
         int fat = parseInt(editFat);
-        int totalCalories = (protein * 4) + (carbs * 4) + (fat * 9);
-        editCalories.setText(String.valueOf(totalCalories));
+        int calculatedCalories = (4 * protein) + (4 * carbs) + (9 * fat);
+        editCalories.setText(String.valueOf(calculatedCalories));
     }
 
     private void saveMeal() {
@@ -82,28 +83,16 @@ public class CustomMealActivity extends AppCompatActivity {
         int fat = parseInt(editFat);
         int quantity = parseInt(editQuantity);
 
-        boolean autoCalculated = checkboxUnknownCalories.isChecked();
-
-        if (name.isEmpty() || quantity <= 0 || (!autoCalculated && calories <= 0)) {
+        if (name.isEmpty() || quantity <= 0 || (!checkUnknownCalories.isChecked() && calories <= 0)) {
             Toast.makeText(this, "Lütfen tüm alanları doğru doldurun", Toast.LENGTH_SHORT).show();
             return;
         }
 
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         String date = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-        String instanceId = UUID.randomUUID().toString();
 
         DatabaseManager.getInstance().addCustomMealInstance(
-                uid,
-                instanceId,
-                date,
-                mealCategory,
-                name,
-                calories,
-                protein,
-                carbs,
-                fat,
-                quantity,
+                uid, date, mealCategory, name, calories, protein, carbs, fat, quantity,
                 new DatabaseManager.OnMealInstanceAddedCallback() {
                     @Override
                     public void onSuccess() {

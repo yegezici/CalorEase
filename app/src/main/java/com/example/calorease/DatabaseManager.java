@@ -1,6 +1,7 @@
 package com.example.calorease;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -13,17 +14,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-
 
 public class DatabaseManager {
 
@@ -77,26 +67,25 @@ public class DatabaseManager {
         void onFailure(String errorMessage);
     }
 
-    public void addCustomMealInstance(String userId, String instanceId, String date, String mealType,
+    public void addCustomMealInstance(String userId, String date, String mealType,
                                       String name, int calories, int protein, int carbs, int fat, int quantity,
                                       OnMealInstanceAddedCallback callback) {
 
-        Map<String, Object> mealInstance = new HashMap<>();
-        mealInstance.put("name", name);
-        mealInstance.put("calories", calories);
-        mealInstance.put("protein", protein);
-        mealInstance.put("carb", carbs);
-        mealInstance.put("fat", fat);
-        mealInstance.put("quantity", quantity); // gram
-        mealInstance.put("mealType", mealType);
-        mealInstance.put("date", date);
-        mealInstance.put("custom", true); // özel yemek işareti
+        Map<String, Object> mealEntry = new HashMap<>();
+        mealEntry.put("name", name);
+        mealEntry.put("calories", calories);
+        mealEntry.put("protein", protein);
+        mealEntry.put("carb", carbs);
+        mealEntry.put("fat", fat);
+        mealEntry.put("quantity", quantity);
+        mealEntry.put("custom", true);
 
-        firestore.collection("Users")
+        firestore.collection("MealInstances")
                 .document(userId)
-                .collection("MealInstances")
-                .document(instanceId)
-                .set(mealInstance)
+                .collection(date)
+                .document(mealType)
+                .collection("Items")
+                .add(mealEntry)
                 .addOnSuccessListener(unused -> callback.onSuccess())
                 .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
     }
@@ -105,6 +94,7 @@ public class DatabaseManager {
         void onSuccess();
         void onFailure(String errorMessage);
     }
+
     public interface UserCallback {
         void onSuccess(Map<String, Object> userData);
         void onFailure(String error);
@@ -154,7 +144,7 @@ public class DatabaseManager {
                     List<Map<String, Object>> meals = new ArrayList<>();
                     for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
                         Map<String, Object> data = doc.getData();
-                        data.put("id", doc.getId()); // mealId'yi ekle
+                        data.put("id", doc.getId());
                         meals.add(data);
                     }
                     callback.onSuccess(meals);
@@ -166,45 +156,49 @@ public class DatabaseManager {
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         String today = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
 
-        CollectionReference mealCollection = firestore.collection("MealInstances")
+        firestore.collection("MealInstances")
                 .document(userId)
                 .collection(today)
                 .document(mealCategory)
-                .collection("Items");
+                .collection("Items")
+                .get()
+                .addOnSuccessListener(query -> {
+                    boolean found = false;
+                    for (DocumentSnapshot doc : query.getDocuments()) {
+                        if (mealId.equals(doc.getString("mealId"))) {
+                            long existingQuantity = doc.getLong("quantity") != null ? doc.getLong("quantity") : 0;
+                            long updatedQuantity = existingQuantity + quantity;
 
-        mealCollection.get().addOnSuccessListener(query -> {
-            boolean found = false;
-            for (DocumentSnapshot doc : query.getDocuments()) {
-                if (mealId.equals(doc.getString("mealId"))) {
-                    long existingQuantity = doc.getLong("quantity") != null ? doc.getLong("quantity") : 0;
-                    long updatedQuantity = existingQuantity + quantity;
+                            doc.getReference().update("quantity", updatedQuantity)
+                                    .addOnSuccessListener(unused -> callback.onSuccess())
+                                    .addOnFailureListener(callback::onFailure);
+                            found = true;
+                            break;
+                        }
+                    }
 
-                    doc.getReference().update("quantity", updatedQuantity)
-                            .addOnSuccessListener(unused -> callback.onSuccess())
-                            .addOnFailureListener(callback::onFailure);
-                    found = true;
-                    break;
-                }
-            }
+                    if (!found) {
+                        Map<String, Object> mealInstance = new HashMap<>();
+                        mealInstance.put("mealId", mealId);
+                        mealInstance.put("quantity", quantity);
 
-            if (!found) {
-                Map<String, Object> mealInstance = new HashMap<>();
-                mealInstance.put("mealId", mealId);
-                mealInstance.put("quantity", quantity);
+                        firestore.collection("MealInstances")
+                                .document(userId)
+                                .collection(today)
+                                .document(mealCategory)
+                                .collection("Items")
+                                .add(mealInstance)
+                                .addOnSuccessListener(unused -> callback.onSuccess())
+                                .addOnFailureListener(callback::onFailure);
+                    }
 
-                mealCollection.add(mealInstance)
-                        .addOnSuccessListener(unused -> callback.onSuccess())
-                        .addOnFailureListener(callback::onFailure);
-            }
-
-        }).addOnFailureListener(callback::onFailure);
+                }).addOnFailureListener(callback::onFailure);
     }
 
     public interface DatabaseCallback {
         void onSuccess();
         void onFailure(Exception e);
     }
-
 
     public interface MealInstanceListCallback {
         void onSuccess(List<Map<String, Object>> mealEntries);
@@ -229,13 +223,7 @@ public class DatabaseManager {
                 .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
     }
 
-
-
-
-
     public void fetchMealInstancesForToday(String userId, String date, MealInstanceCallback callback) {
-        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-
         String[] mealTypes = {"Kahvaltı", "Öğle Yemeği", "Akşam Yemeği", "Ara Öğün"};
         List<Map<String, Object>> result = new ArrayList<>();
         int[] completed = {0};
@@ -257,12 +245,10 @@ public class DatabaseManager {
                             }
                         }
 
-                        if (!meals.isEmpty()) {
-                            Map<String, Object> entry = new HashMap<>();
-                            entry.put("mealType", mealType);
-                            entry.put("meals", meals);
-                            result.add(entry);
-                        }
+                        Map<String, Object> entry = new HashMap<>();
+                        entry.put("mealType", mealType);
+                        entry.put("meals", meals);
+                        result.add(entry);
 
                         completed[0]++;
                         if (completed[0] == mealTypes.length && !failed[0]) {
@@ -278,11 +264,56 @@ public class DatabaseManager {
         }
     }
 
+    // --- Water tracking methods ---
+    public void fetchWaterIntake(String userId, String date, OnWaterFetchedCallback callback) {
+        firestore.collection("Users")
+                .document(userId)
+                .collection("WaterIntake")
+                .document(date)
+                .get()
+                .addOnSuccessListener(doc -> {
+                    if (doc.exists()) {
+                        long amount = doc.contains("amount") ? doc.getLong("amount") : 0;
+                        callback.onSuccess((int) amount);
+                    } else {
+                        callback.onSuccess(0);
+                    }
+                })
+                .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
+    }
+
+    public void addWaterIntake(String userId, int amount, OnWaterUpdatedCallback callback) {
+        String today = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+
+        DocumentReference waterDoc = firestore.collection("Users")
+                .document(userId)
+                .collection("WaterIntake")
+                .document(today);
+
+        waterDoc.get().addOnSuccessListener(snapshot -> {
+            long current = snapshot.exists() && snapshot.contains("amount") ? snapshot.getLong("amount") : 0;
+            long updated = current + amount;
+
+            Map<String, Object> data = new HashMap<>();
+            data.put("amount", updated);
+
+            waterDoc.set(data).addOnSuccessListener(unused -> callback.onSuccess((int) updated))
+                    .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
+        }).addOnFailureListener(e -> callback.onFailure(e.getMessage()));
+    }
+
+    public interface OnWaterFetchedCallback {
+        void onSuccess(int amount);
+        void onFailure(String errorMessage);
+    }
+
+    public interface OnWaterUpdatedCallback {
+        void onSuccess(int totalAmount);
+        void onFailure(String errorMessage);
+    }
 
     public interface MealInstanceCallback {
         void onSuccess(List<Map<String, Object>> mealInstances);
         void onFailure(String error);
     }
-
-
 }
