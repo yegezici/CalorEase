@@ -122,25 +122,7 @@ public class DatabaseManager {
                 })
                 .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
     }
-    public interface MealInstanceCallback {
-        void onSuccess(List<Map<String, Object>> mealInstances);
-        void onFailure(String error);
-    }
 
-    public void fetchMealInstancesForToday(String userId, String date, MealInstanceCallback callback) {
-        firestore.collection("MealInstance")
-                .whereEqualTo("userID", userId)
-                .whereEqualTo("date", date)
-                .get()
-                .addOnSuccessListener(querySnapshots -> {
-                    List<Map<String, Object>> result = new ArrayList<>();
-                    for (QueryDocumentSnapshot doc : querySnapshots) {
-                        result.add(doc.getData());
-                    }
-                    callback.onSuccess(result);
-                })
-                .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
-    }
     public interface MealDetailCallback {
         void onSuccess(Map<String, Object> mealData);
         void onFailure(String error);
@@ -249,8 +231,58 @@ public class DatabaseManager {
 
 
 
-    
 
+
+    public void fetchMealInstancesForToday(String userId, String date, MealInstanceCallback callback) {
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+
+        String[] mealTypes = {"Kahvaltı", "Öğle Yemeği", "Akşam Yemeği", "Ara Öğün"};
+        List<Map<String, Object>> result = new ArrayList<>();
+        int[] completed = {0};
+        boolean[] failed = {false};
+
+        for (String mealType : mealTypes) {
+            firestore.collection("MealInstances")
+                    .document(userId)
+                    .collection(date)
+                    .document(mealType)
+                    .collection("Items")
+                    .get()
+                    .addOnSuccessListener(itemsSnapshot -> {
+                        List<Map<String, Object>> meals = new ArrayList<>();
+                        for (DocumentSnapshot itemDoc : itemsSnapshot.getDocuments()) {
+                            Map<String, Object> itemData = itemDoc.getData();
+                            if (itemData != null) {
+                                meals.add(itemData);
+                            }
+                        }
+
+                        if (!meals.isEmpty()) {
+                            Map<String, Object> entry = new HashMap<>();
+                            entry.put("mealType", mealType);
+                            entry.put("meals", meals);
+                            result.add(entry);
+                        }
+
+                        completed[0]++;
+                        if (completed[0] == mealTypes.length && !failed[0]) {
+                            callback.onSuccess(result);
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        if (!failed[0]) {
+                            failed[0] = true;
+                            callback.onFailure(e.getMessage());
+                        }
+                    });
+        }
+    }
+
+
+    public interface MealInstanceCallback {
+        void onSuccess(List<Map<String, Object>> mealInstances);
+        void onFailure(String error);
+    }
 
 
 }

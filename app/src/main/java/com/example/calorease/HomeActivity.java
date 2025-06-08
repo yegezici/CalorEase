@@ -27,10 +27,10 @@ public class HomeActivity extends AppCompatActivity {
     private Button btnRecommendation;
     private TextView tvCalories, tvProtein, tvCarbs, tvFat, textGreeting, textDailyTip, textCalorieRatio;
 
-    private int totalCalories = 0;
-    private int totalProtein = 0;
-    private int totalCarbs = 0;
-    private int totalFat = 0;
+    private double totalCalories = 0;
+    private double totalProtein = 0;
+    private double totalCarbs = 0;
+    private double totalFat = 0;
 
     private int dailyCalorieGoal = 2000;
 
@@ -124,39 +124,55 @@ public class HomeActivity extends AppCompatActivity {
                 totalCarbs = 0;
                 totalFat = 0;
 
+                List<Runnable> pendingUpdates = new ArrayList<>();
+                final int[] pendingCount = {0};
                 for (Map<String, Object> instance : mealInstances) {
                     List<Map<String, Object>> meals = (List<Map<String, Object>>) instance.get("meals");
                     if (meals != null) {
                         for (Map<String, Object> mealEntry : meals) {
-                            String mealID = (String) mealEntry.get("mealID");
+                            String mealId = (String) mealEntry.get("mealId");
+
+
                             Object qtyObj = mealEntry.get("quantity");
                             int quantity = (qtyObj instanceof Number) ? ((Number) qtyObj).intValue() : 0;
 
-                            if (mealID != null && quantity > 0) {
-                                DatabaseManager.getInstance().fetchMealById(mealID, new DatabaseManager.MealDetailCallback() {
+                            if (mealId != null && quantity > 0) {
+                                pendingCount[0]++;
+                                DatabaseManager.getInstance().fetchMealById(mealId, new DatabaseManager.MealDetailCallback() {
                                     @Override
                                     public void onSuccess(Map<String, Object> mealData) {
-                                        int cal = toInt(mealData.get("calories"));
-                                        int pro = toInt(mealData.get("protein"));
-                                        int carb = toInt(mealData.get("carb"));
-                                        int fat = toInt(mealData.get("fat"));
+                                        double cal = toDouble(mealData.get("calories"));
+                                        double pro = toDouble(mealData.get("protein"));
+                                        double carb = toDouble(mealData.get("carb"));
+                                        double fat = toDouble(mealData.get("fat"));
 
                                         totalCalories += cal * quantity / 100;
                                         totalProtein += pro * quantity / 100;
                                         totalCarbs += carb * quantity / 100;
                                         totalFat += fat * quantity / 100;
 
-                                        updateProgress(totalCalories, totalProtein, totalCarbs, totalFat);
+                                        pendingCount[0]--;
+                                        if (pendingCount[0] == 0) {
+                                            updateProgress(totalCalories, totalProtein, totalCarbs, totalFat);
+                                        }
                                     }
 
                                     @Override
                                     public void onFailure(String error) {
-                                        // isteğe bağlı: hata loglanabilir
+                                        pendingCount[0]--;
+                                        if (pendingCount[0] == 0) {
+                                            updateProgress(totalCalories, totalProtein, totalCarbs, totalFat);
+                                        }
                                     }
                                 });
                             }
                         }
                     }
+                }
+
+                // Eğer hiç meal yoksa doğrudan update et
+                if (pendingCount[0] == 0) {
+                    updateProgress(0, 0, 0, 0);
                 }
             }
 
@@ -167,15 +183,28 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
+
+
     private int toInt(Object obj) {
         return (obj instanceof Number) ? ((Number) obj).intValue() : 0;
     }
+    private double toDouble(Object value) {
+        if (value instanceof Number) {
+            return ((Number) value).doubleValue();
+        }
+        try {
+            return Double.parseDouble(String.valueOf(value));
+        } catch (NumberFormatException e) {
+            return 0.0;
+        }
+    }
 
-    private void updateProgress(int calories, int protein, int carbs, int fat) {
-        progressCalories.setProgress(calories);
+
+    private void updateProgress(double calories, double protein, double carbs, double fat) {
+        progressCalories.setProgress((int) calories);
         textCalorieRatio.setText(calories + " / " + dailyCalorieGoal + " kcal");
 
-        float percent = (dailyCalorieGoal > 0) ? (calories * 100f / dailyCalorieGoal) : 0f;
+        double percent = (dailyCalorieGoal > 0) ? (calories * 100f / dailyCalorieGoal) : 0f;
 
         if (percent <= 25) {
             progressCalories.setProgressDrawable(getDrawable(R.drawable.progress_danger));
