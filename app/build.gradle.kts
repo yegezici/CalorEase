@@ -10,10 +10,10 @@ val localPropertiesFile = rootProject.file("local.properties")
 if (localPropertiesFile.exists()) {
     localProperties.load(localPropertiesFile.inputStream())
 }
+
 android {
     namespace = "com.example.calorease"
     compileSdk = 35
-
 
     buildFeatures {
         buildConfig = true // ✅ Bunu ekle
@@ -29,7 +29,6 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("String", "OPENAI_API_KEY", "\"${localProperties["OPENAI_API_KEY"]}\"")
         println(">> DEBUG OPENAI_API_KEY: ${localProperties["OPENAI_API_KEY"]}")
-
     }
 
     buildTypes {
@@ -41,6 +40,7 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -56,7 +56,7 @@ dependencies {
     implementation("com.google.firebase:firebase-appcheck")
     implementation("com.google.firebase:firebase-appcheck-debug")
 
-    // Diğer bağımlılıkların
+    // Diğer bağımlılıklar
     implementation("com.google.android.material:material:1.10.0")
     implementation("androidx.activity:activity-ktx:1.2.4")
     implementation("androidx.constraintlayout:constraintlayout:2.1.2")
@@ -68,8 +68,8 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation("com.airbnb.android:lottie:6.4.0")
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.3")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
 }
-

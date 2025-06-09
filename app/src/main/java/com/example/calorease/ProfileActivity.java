@@ -58,7 +58,7 @@ public class ProfileActivity extends AppCompatActivity {
             editor.putBoolean("isRemembered", false);
             editor.apply();
 
-            Intent intent = new Intent(ProfileActivity.this, LogIn.class);
+            Intent intent = new Intent(ProfileActivity.this, MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
             finish();

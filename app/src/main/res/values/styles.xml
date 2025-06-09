@@ -5,4 +5,11 @@
         <!-- Özelleştirilmiş tema ayarları buraya -->
     </style>
 
+    <style name="CalorEaseTextInput" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="boxStrokeColor">#212121</item> <!-- Çerçeve çizgisi -->
+        <item name="hintTextColor">#212121</item> <!-- Hint yazı rengi -->
+        <item name="android:textColor">#212121</item> <!-- Giriş yapılan yazı rengi -->
+        <item name="boxBackgroundColor">#fcfbf7</item> <!-- Arka plan -->
+    </style>
+
 </resources>

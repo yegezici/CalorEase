@@ -1,6 +1,7 @@
 package com.example.calorease;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -15,6 +16,20 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // ✅ Oturum kontrolü (isRemembered true ise HomeActivity'ye yönlendir)
+        SharedPreferences sharedPreferences = getSharedPreferences("LoginPrefs", MODE_PRIVATE);
+        boolean isRemembered = sharedPreferences.getBoolean("isRemembered", false);
+
+        if (isRemembered) {
+            Intent intent = new Intent(MainActivity.this, HomeActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); // geri dönülmesin
+            startActivity(intent);
+            finish();
+            return;
+        }
+
+        // Layout sadece kullanıcı hatırlanmadıysa yüklensin
         setContentView(R.layout.activity_main);
 
         // Edge-to-Edge (tam ekran) özellikleri
