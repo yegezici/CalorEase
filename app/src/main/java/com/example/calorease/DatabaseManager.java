@@ -93,9 +93,28 @@ public class DatabaseManager {
                 .document(mealType)
                 .collection("Items")
                 .add(mealEntry)
-                .addOnSuccessListener(unused -> callback.onSuccess())
+                .addOnSuccessListener(unused -> {
+                    // Toplam değerleri güncelle
+                    double totalCalories = calories * quantity;
+                    double totalCarbs = carbs * quantity;
+                    double totalProtein = protein * quantity;
+                    double totalFat = fat * quantity;
+
+                    updateTotalStats(totalCalories, totalCarbs, totalProtein, totalFat, new DatabaseCallback() {
+                        @Override
+                        public void onSuccess() {
+                            callback.onSuccess();
+                        }
+
+                        @Override
+                        public void onFailure(Exception e) {
+                            callback.onFailure(e.getMessage());
+                        }
+                    });
+                })
                 .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
     }
+
 
     public interface OnMealInstanceAddedCallback {
         void onSuccess();
