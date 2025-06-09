@@ -32,10 +32,12 @@ public class DietMealAdapter extends RecyclerView.Adapter<DietMealAdapter.DietMe
     public void onBindViewHolder(@NonNull DietMealViewHolder holder, int position) {
         DietMeal meal = dietMealList.get(position);
 
-        if (meal.name != null) {
-            holder.textMealName.setText(meal.name);
+        holder.textMealName.setText(meal.name != null ? meal.name : "Yemek Adı Yok");
+
+        if (meal.calories > 200) {
+            holder.textHighCalorieWarning.setVisibility(View.VISIBLE);
         } else {
-            holder.textMealName.setText("Yemek Adı Yok");
+            holder.textHighCalorieWarning.setVisibility(View.GONE);
         }
 
         holder.textMealDetails.setText(
@@ -54,12 +56,13 @@ public class DietMealAdapter extends RecyclerView.Adapter<DietMealAdapter.DietMe
 
     public static class DietMealViewHolder extends RecyclerView.ViewHolder {
 
-        TextView textMealName, textMealDetails;
+        TextView textMealName, textMealDetails, textHighCalorieWarning;
 
         public DietMealViewHolder(@NonNull View itemView) {
             super(itemView);
             textMealName = itemView.findViewById(R.id.text_meal_name);
             textMealDetails = itemView.findViewById(R.id.text_meal_details);
+            textHighCalorieWarning = itemView.findViewById(R.id.text_high_calorie_warning);
         }
     }
 }
