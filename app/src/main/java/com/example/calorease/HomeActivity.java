@@ -20,13 +20,18 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Random;
 
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import com.google.android.material.navigation.NavigationView;
+
+import org.w3c.dom.Text;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -83,8 +88,36 @@ public class HomeActivity extends AppCompatActivity {
         progressCalories.setMax(dailyCalorieGoal);
         progressWater.setMax(DAILY_WATER_GOAL);
 
+
         loadUserName();
-        textDailyTip.setText("Günün ipucu: Yavaş yemek daha az kalori almanı sağlar 🥗");
+        List<String> dailyTips = Arrays.asList(
+                "Günün ipucu: Yavaş yemek daha az kalori almanı sağlar 🥗",
+                "Günün ipucu: Her gün 2-3 litre su içmeye çalış 💧",
+                "Günün ipucu: Uyku düzeni, kilo kontrolü kadar önemlidir 🛌",
+                "Günün ipucu: Şekersiz çay ve kahve kalorisizdir ☕",
+                "Günün ipucu: Kahvaltıyı atlama, metabolizmanı hızlandırır 🍳",
+                "Günün ipucu: Etiketleri kontrol et, gizli şekerlere dikkat! 🏷️",
+                "Günün ipucu: Günlük 30 dakika yürüyüş hem bedene hem ruha iyi gelir 🚶",
+                "Günün ipucu: Öğünlerini planlamak gereksiz atıştırmaları önler 📅",
+                "Günün ipucu: Lifli gıdalar tokluk hissini artırır 🥦",
+                "Günün ipucu: Abur cuburları ulaşamayacağın yere koy 🍫❌",
+                "Günün ipucu: Kendini aç bırakma, dengeli beslen 🚫🍽️",
+                "Günün ipucu: Yağsız yoğurt iyi bir protein kaynağıdır 🥣",
+                "Günün ipucu: Akşam yemeğini uyumadan en az 3 saat önce bitir 🕒",
+                "Günün ipucu: Günlük kalori hedefini aşmamaya dikkat et 🎯",
+                "Günün ipucu: Evde egzersiz yapmak da çok işe yarar 🏋️",
+                "Günün ipucu: Sağlıklı atıştırmalıklar hazırlayarak açlık krizlerini önle! 🍎",
+                "Günün ipucu: Bol sebzeli yemekler hem doyurucu hem düşük kalorilidir 🥗",
+                "Günün ipucu: Su içmek açlık hissini azaltabilir 💦",
+                "Günün ipucu: Kendine ödül ver ama ölçüyü kaçırma 🎁",
+                "Günün ipucu: Küçük tabaklar kullanmak porsiyon kontrolüne yardımcı olur 🍽️"
+        );
+
+
+        Random random = new Random();
+        String selectedTip = dailyTips.get(random.nextInt(dailyTips.size()));
+        textDailyTip.setText(selectedTip);
+
 
         btnMenu.setOnClickListener(v -> drawerLayout.openDrawer(GravityCompat.START));
         navigationView.setNavigationItemSelectedListener(item -> {
