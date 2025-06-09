@@ -17,7 +17,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -28,19 +27,23 @@ public class HomeActivity extends AppCompatActivity {
     private Button btnRecommendation;
     private TextView tvCalories, tvProtein, tvCarbs, tvFat, textGreeting, textDailyTip, textCalorieRatio, textWaterLabel;
 
+
     private int totalCalories = 0;
     private int totalProtein = 0;
     private int totalCarbs = 0;
     private int totalFat = 0;
     private final int DAILY_WATER_GOAL = 2000;
 
+
     private int dailyCalorieGoal = 2000;
 
     @Override
     protected void onResume() {
         super.onResume();
+
         fetchUserCalorieGoalAndLoadMeals();
         loadDailyWaterIntake();
+
     }
 
     @Override
@@ -109,11 +112,13 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
+
     private void fetchUserCalorieGoalAndLoadMeals() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null) return;
 
         String userId = user.getUid();
+
         DatabaseManager.getInstance().fetchUser(userId, new DatabaseManager.UserCallback() {
             @Override
             public void onSuccess(Map<String, Object> userData) {
@@ -122,16 +127,17 @@ public class HomeActivity extends AppCompatActivity {
                     dailyCalorieGoal = ((Number) goalObj).intValue();
                     progressCalories.setMax(dailyCalorieGoal);
                 }
-                loadTodayMealsAndUpdateProgress();
+                loadTodaySummary();
             }
 
             @Override
             public void onFailure(String error) {
                 Toast.makeText(HomeActivity.this, "Hedef kalorisi alınamadı.", Toast.LENGTH_SHORT).show();
-                loadTodayMealsAndUpdateProgress();
+                loadTodaySummary();
             }
         });
     }
+
 
     private void loadTodayMealsAndUpdateProgress() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -140,75 +146,27 @@ public class HomeActivity extends AppCompatActivity {
         String userId = user.getUid();
         String today = getTodayDate();
 
-        DatabaseManager.getInstance().fetchMealInstancesForToday(userId, today, new DatabaseManager.MealInstanceCallback() {
+
+        DatabaseManager.getInstance().fetchTodaySummary(userId, today, new DatabaseManager.MealStatsCallback() {
             @Override
-            public void onSuccess(List<Map<String, Object>> mealInstances) {
-                totalCalories = 0;
-                totalProtein = 0;
-                totalCarbs = 0;
-                totalFat = 0;
 
-                for (Map<String, Object> instance : mealInstances) {
-                    List<Map<String, Object>> meals = (List<Map<String, Object>>) instance.get("meals");
-                    if (meals != null) {
-                        for (Map<String, Object> mealEntry : meals) {
-                            Object qtyObj = mealEntry.get("quantity");
-                            int quantity = (qtyObj instanceof Number) ? ((Number) qtyObj).intValue() : 0;
+            public void onSuccess(double calories, double carbs, double protein, double fat) {
+                updateProgress(calories, protein, carbs, fat);
 
-                            if (mealEntry.containsKey("mealID")) {
-                                String mealID = (String) mealEntry.get("mealID");
-                                if (mealID != null && quantity > 0) {
-                                    DatabaseManager.getInstance().fetchMealById(mealID, new DatabaseManager.MealDetailCallback() {
-                                        @Override
-                                        public void onSuccess(Map<String, Object> mealData) {
-                                            int cal = toInt(mealData.get("calories"));
-                                            int pro = toInt(mealData.get("protein"));
-                                            int carb = toInt(mealData.get("carb"));
-                                            int fat = toInt(mealData.get("fat"));
-
-                                            totalCalories += cal * quantity / 100;
-                                            totalProtein += pro * quantity / 100;
-                                            totalCarbs += carb * quantity / 100;
-                                            totalFat += fat * quantity / 100;
-
-                                            updateProgress(totalCalories, totalProtein, totalCarbs, totalFat);
-                                        }
-
-                                        @Override
-                                        public void onFailure(String error) {}
-                                    });
-                                }
-                            } else {
-                                int cal = toInt(mealEntry.get("calories"));
-                                int pro = toInt(mealEntry.get("protein"));
-                                int carb = toInt(mealEntry.get("carb"));
-                                int fat = toInt(mealEntry.get("fat"));
-
-                                totalCalories += cal * quantity / 100;
-                                totalProtein += pro * quantity / 100;
-                                totalCarbs += carb * quantity / 100;
-                                totalFat += fat * quantity / 100;
-
-                                updateProgress(totalCalories, totalProtein, totalCarbs, totalFat);
-                            }
-                        }
-                    }
-                }
             }
 
             @Override
             public void onFailure(String error) {
                 Toast.makeText(HomeActivity.this, "Veri alınamadı: " + error, Toast.LENGTH_SHORT).show();
+                updateProgress(0, 0, 0, 0);
             }
         });
     }
 
-    private int toInt(Object obj) {
-        return (obj instanceof Number) ? ((Number) obj).intValue() : 0;
-    }
 
-    private void updateProgress(int calories, int protein, int carbs, int fat) {
-        progressCalories.setProgress(calories);
+    private void updateProgress(double calories, double protein, double carbs, double fat) {
+        progressCalories.setProgress((int) calories);
+
         textCalorieRatio.setText(calories + " / " + dailyCalorieGoal + " kcal");
 
         float percent = (dailyCalorieGoal > 0) ? (calories * 100f / dailyCalorieGoal) : 0f;
@@ -253,4 +211,5 @@ public class HomeActivity extends AppCompatActivity {
     private String getTodayDate() {
         return new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
     }
+
 }
