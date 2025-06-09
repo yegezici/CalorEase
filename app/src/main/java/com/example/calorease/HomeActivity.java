@@ -14,9 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -27,17 +25,12 @@ public class HomeActivity extends AppCompatActivity {
     private Button btnRecommendation;
     private TextView tvCalories, tvProtein, tvCarbs, tvFat, textGreeting, textDailyTip, textCalorieRatio;
 
-    private double totalCalories = 0;
-    private double totalProtein = 0;
-    private double totalCarbs = 0;
-    private double totalFat = 0;
-
     private int dailyCalorieGoal = 2000;
 
     @Override
     protected void onResume() {
         super.onResume();
-        fetchUserCalorieGoalAndLoadMeals();
+        fetchUserCalorieGoalAndLoadSummary();
     }
 
     @Override
@@ -91,7 +84,7 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
-    private void fetchUserCalorieGoalAndLoadMeals() {
+    private void fetchUserCalorieGoalAndLoadSummary() {
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseManager.getInstance().fetchUser(userId, new DatabaseManager.UserCallback() {
             @Override
@@ -101,104 +94,34 @@ public class HomeActivity extends AppCompatActivity {
                     dailyCalorieGoal = ((Number) goalObj).intValue();
                     progressCalories.setMax(dailyCalorieGoal);
                 }
-                loadTodayMealsAndUpdateProgress();
+                loadTodaySummary();
             }
 
             @Override
             public void onFailure(String error) {
                 Toast.makeText(HomeActivity.this, "Hedef kalorisi alınamadı.", Toast.LENGTH_SHORT).show();
-                loadTodayMealsAndUpdateProgress();
+                loadTodaySummary();
             }
         });
     }
 
-    private void loadTodayMealsAndUpdateProgress() {
+    private void loadTodaySummary() {
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        String today = getTodayDate();
+        String today = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
 
-        DatabaseManager.getInstance().fetchMealInstancesForToday(userId, today, new DatabaseManager.MealInstanceCallback() {
+        DatabaseManager.getInstance().fetchTodaySummary(userId, today, new DatabaseManager.MealStatsCallback() {
             @Override
-            public void onSuccess(List<Map<String, Object>> mealInstances) {
-                totalCalories = 0;
-                totalProtein = 0;
-                totalCarbs = 0;
-                totalFat = 0;
-
-                List<Runnable> pendingUpdates = new ArrayList<>();
-                final int[] pendingCount = {0};
-                for (Map<String, Object> instance : mealInstances) {
-                    List<Map<String, Object>> meals = (List<Map<String, Object>>) instance.get("meals");
-                    if (meals != null) {
-                        for (Map<String, Object> mealEntry : meals) {
-                            String mealId = (String) mealEntry.get("mealId");
-
-
-                            Object qtyObj = mealEntry.get("quantity");
-                            int quantity = (qtyObj instanceof Number) ? ((Number) qtyObj).intValue() : 0;
-
-                            if (mealId != null && quantity > 0) {
-                                pendingCount[0]++;
-                                DatabaseManager.getInstance().fetchMealById(mealId, new DatabaseManager.MealDetailCallback() {
-                                    @Override
-                                    public void onSuccess(Map<String, Object> mealData) {
-                                        double cal = toDouble(mealData.get("calories"));
-                                        double pro = toDouble(mealData.get("protein"));
-                                        double carb = toDouble(mealData.get("carb"));
-                                        double fat = toDouble(mealData.get("fat"));
-
-                                        totalCalories += cal * quantity / 100;
-                                        totalProtein += pro * quantity / 100;
-                                        totalCarbs += carb * quantity / 100;
-                                        totalFat += fat * quantity / 100;
-
-                                        pendingCount[0]--;
-                                        if (pendingCount[0] == 0) {
-                                            updateProgress(totalCalories, totalProtein, totalCarbs, totalFat);
-                                        }
-                                    }
-
-                                    @Override
-                                    public void onFailure(String error) {
-                                        pendingCount[0]--;
-                                        if (pendingCount[0] == 0) {
-                                            updateProgress(totalCalories, totalProtein, totalCarbs, totalFat);
-                                        }
-                                    }
-                                });
-                            }
-                        }
-                    }
-                }
-
-                // Eğer hiç meal yoksa doğrudan update et
-                if (pendingCount[0] == 0) {
-                    updateProgress(0, 0, 0, 0);
-                }
+            public void onSuccess(double calories, double carbs, double protein, double fat) {
+                updateProgress(calories, protein, carbs, fat);
             }
 
             @Override
             public void onFailure(String error) {
                 Toast.makeText(HomeActivity.this, "Veri alınamadı: " + error, Toast.LENGTH_SHORT).show();
+                updateProgress(0, 0, 0, 0);
             }
         });
     }
-
-
-
-    private int toInt(Object obj) {
-        return (obj instanceof Number) ? ((Number) obj).intValue() : 0;
-    }
-    private double toDouble(Object value) {
-        if (value instanceof Number) {
-            return ((Number) value).doubleValue();
-        }
-        try {
-            return Double.parseDouble(String.valueOf(value));
-        } catch (NumberFormatException e) {
-            return 0.0;
-        }
-    }
-
 
     private void updateProgress(double calories, double protein, double carbs, double fat) {
         progressCalories.setProgress((int) calories);
@@ -218,9 +141,5 @@ public class HomeActivity extends AppCompatActivity {
         tvProtein.setText("Protein: " + protein + " g");
         tvCarbs.setText("Karbonhidrat: " + carbs + " g");
         tvFat.setText("Yağ: " + fat + " g");
-    }
-
-    private String getTodayDate() {
-        return new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
     }
 }

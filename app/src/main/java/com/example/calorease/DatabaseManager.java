@@ -1,6 +1,7 @@
 package com.example.calorease;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -8,21 +9,14 @@ import com.google.firebase.firestore.SetOptions;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
 
 
 public class DatabaseManager {
@@ -162,25 +156,30 @@ public class DatabaseManager {
                 .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
     }
 
-    public void addMealInstance(String mealId, int quantity, String mealCategory, DatabaseCallback callback) {
+    public void addMealInstance(String mealId, int quantity,
+                                double calories, double carbs, double protein, double fat,
+                                String mealCategory, DatabaseCallback callback) {
+
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         String today = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
 
-        CollectionReference mealCollection = firestore.collection("MealInstances")
+        DocumentReference categoryDocRef = firestore.collection("MealInstances")
                 .document(userId)
                 .collection(today)
-                .document(mealCategory)
-                .collection("Items");
+                .document(mealCategory);
 
-        mealCollection.get().addOnSuccessListener(query -> {
+        CollectionReference mealItemsRef = categoryDocRef.collection("Items");
+
+        mealItemsRef.get().addOnSuccessListener(query -> {
             boolean found = false;
+
             for (DocumentSnapshot doc : query.getDocuments()) {
                 if (mealId.equals(doc.getString("mealId"))) {
                     long existingQuantity = doc.getLong("quantity") != null ? doc.getLong("quantity") : 0;
                     long updatedQuantity = existingQuantity + quantity;
 
                     doc.getReference().update("quantity", updatedQuantity)
-                            .addOnSuccessListener(unused -> callback.onSuccess())
+                            .addOnSuccessListener(unused -> updateTotalStats(calories, carbs, protein, fat, callback))
                             .addOnFailureListener(callback::onFailure);
                     found = true;
                     break;
@@ -192,13 +191,61 @@ public class DatabaseManager {
                 mealInstance.put("mealId", mealId);
                 mealInstance.put("quantity", quantity);
 
-                mealCollection.add(mealInstance)
-                        .addOnSuccessListener(unused -> callback.onSuccess())
+                mealItemsRef.add(mealInstance)
+                        .addOnSuccessListener(unused -> updateTotalStats(calories, carbs, protein, fat, callback))
                         .addOnFailureListener(callback::onFailure);
             }
 
         }).addOnFailureListener(callback::onFailure);
     }
+
+
+
+    private void updateTotalStats(double addedCalories, double addedCarbs, double addedProtein, double addedFat, DatabaseCallback callback) {
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        String today = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+
+        DocumentReference summaryDocRef = firestore
+                .collection("MealInstances")
+                .document(userId)
+                .collection(today)
+                .document("summary");
+
+        summaryDocRef.get().addOnSuccessListener(doc -> {
+            double currentCalories = 0.0;
+            double currentCarbs = 0.0;
+            double currentProtein = 0.0;
+            double currentFat = 0.0;
+
+            if (doc.exists()) {
+                currentCalories = getDoubleOrZero(doc, "totalCalories");
+                currentCarbs = getDoubleOrZero(doc, "totalCarbs");
+                currentProtein = getDoubleOrZero(doc, "totalProtein");
+                currentFat = getDoubleOrZero(doc, "totalFat");
+            }
+
+            Map<String, Object> updates = new HashMap<>();
+            updates.put("totalCalories", currentCalories + addedCalories);
+            updates.put("totalCarbs", currentCarbs + addedCarbs);
+            updates.put("totalProtein", currentProtein + addedProtein);
+            updates.put("totalFat", currentFat + addedFat);
+
+            summaryDocRef.set(updates, SetOptions.merge())
+                    .addOnSuccessListener(unused -> callback.onSuccess())
+                    .addOnFailureListener(callback::onFailure);
+
+        }).addOnFailureListener(callback::onFailure);
+    }
+
+    private double getDoubleOrZero(DocumentSnapshot doc, String key) {
+        Object value = doc.get(key);
+        return (value instanceof Number) ? ((Number) value).doubleValue() : 0.0;
+    }
+
+
+
+
+
 
     public interface DatabaseCallback {
         void onSuccess();
@@ -283,6 +330,103 @@ public class DatabaseManager {
         void onSuccess(List<Map<String, Object>> mealInstances);
         void onFailure(String error);
     }
+
+
+    public void fetchTodaySummary(String userId, String date, MealStatsCallback callback) {
+        FirebaseFirestore.getInstance()
+                .collection("MealInstances")
+                .document(userId)
+                .collection(date)
+                .document("summary")
+                .get()
+                .addOnSuccessListener(doc -> {
+                    if (doc.exists()) {
+                        double calories = toDouble(doc.get("totalCalories"));
+                        double carbs = toDouble(doc.get("totalCarbs"));
+                        double protein = toDouble(doc.get("totalProtein"));
+                        double fat = toDouble(doc.get("totalFat"));
+                        callback.onSuccess(calories, carbs, protein, fat);
+                    } else {
+                        callback.onSuccess(0, 0, 0, 0);
+                    }
+                })
+                .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
+    }
+
+    public interface MealStatsCallback {
+        void onSuccess(double calories, double carbs, double protein, double fat);
+        void onFailure(String error);
+    }
+    private double toDouble(Object value) {
+        if (value instanceof Number) {
+            return ((Number) value).doubleValue();
+        }
+        try {
+            return Double.parseDouble(String.valueOf(value));
+        } catch (Exception e) {
+            return 0.0;
+        }
+    }
+
+
+    public void fetchLast7DaysSummaries(String userId, MealStatsListCallback callback) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        List<String> last7Dates = new ArrayList<>();
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        Calendar calendar = Calendar.getInstance();
+
+        for (int i = 0; i < 7; i++) {
+            last7Dates.add(sdf.format(calendar.getTime()));
+            calendar.add(Calendar.DATE, -1);
+        }
+
+        List<Map<String, Object>> result = new ArrayList<>();
+        final int[] pending = {last7Dates.size()};
+
+        for (String date : last7Dates) {
+            db.collection("MealInstances")
+                    .document(userId)
+                    .collection(date)
+                    .document("summary")
+                    .get()
+                    .addOnSuccessListener(doc -> {
+                        Map<String, Object> day = new HashMap<>();
+                        day.put("date", date);
+                        day.put("totalCalories", getDoubleOrZero(doc.get("totalCalories")));
+                        day.put("totalCarbs", getDoubleOrZero(doc.get("totalCarbs")));
+                        day.put("totalProtein", getDoubleOrZero(doc.get("totalProtein")));
+                        day.put("totalFat", getDoubleOrZero(doc.get("totalFat")));
+                        result.add(day);
+
+                        pending[0]--;
+                        if (pending[0] == 0) {
+                            callback.onSuccess(result);
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        pending[0]--;
+                        if (pending[0] == 0) {
+                            callback.onSuccess(result); // eksik gün varsa yine gönder
+                        }
+                    });
+        }
+    }
+
+    private double getDoubleOrZero(Object val) {
+        if (val instanceof Number) return ((Number) val).doubleValue();
+        try {
+            return Double.parseDouble(String.valueOf(val));
+        } catch (Exception e) {
+            return 0.0;
+        }
+    }
+
+    public interface MealStatsListCallback {
+        void onSuccess(List<Map<String, Object>> summaries);
+        void onFailure(String error);
+    }
+
 
 
 }

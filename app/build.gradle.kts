@@ -1,11 +1,23 @@
+import java.util.Properties // Bunu dosyanın en üstüne ekle
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.google.gms.google.services)
 }
 
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(localPropertiesFile.inputStream())
+}
 android {
     namespace = "com.example.calorease"
     compileSdk = 35
+
+
+    buildFeatures {
+        buildConfig = true // ✅ Bunu ekle
+    }
 
     defaultConfig {
         applicationId = "com.example.calorease"
@@ -15,6 +27,9 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "OPENAI_API_KEY", "\"${localProperties["OPENAI_API_KEY"]}\"")
+        println(">> DEBUG OPENAI_API_KEY: ${localProperties["OPENAI_API_KEY"]}")
+
     }
 
     buildTypes {

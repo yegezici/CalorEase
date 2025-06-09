@@ -1,5 +1,11 @@
 package com.example.calorease;
 
+
+import java.util.List;
+import java.util.Map;
+
+
+
 import okhttp3.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -7,13 +13,16 @@ import org.json.JSONObject;
 import java.io.IOException;
 
 public class Chatbot {
-    private final String apiKey = "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";
+
+    private static final String apiKey = BuildConfig.OPENAI_API_KEY;
     private static final String API_URL = "https://api.openai.com/v1/chat/completions";
 
     public interface ChatbotCallback {
         void onResponse(String response);
         void onError(String error);
     }
+
+
 
     public void getChatbotReply(String userMessage, ChatbotCallback callback) {
         OkHttpClient client = new OkHttpClient();
@@ -69,5 +78,37 @@ public class Chatbot {
             }
         });
     }
+
+    public void askLast7DaysBasedOnCalorie(String userId, ChatbotCallback callback) {
+        DatabaseManager.getInstance().fetchLast7DaysSummaries(userId, new DatabaseManager.MealStatsListCallback() {
+            @Override
+            public void onSuccess(List<Map<String, Object>> summaries) {
+                StringBuilder prompt = new StringBuilder();
+                prompt.append("Aşağıda bir kullanıcının son 7 güne ait günlük kalori ve makro (protein, karbonhidrat, yağ) değerleri verilmiştir:\n");
+
+                for (Map<String, Object> day : summaries) {
+                    prompt.append("Tarih: ").append(day.get("date"))
+                            .append(" | Kalori: ").append(day.get("totalCalories"))
+                            .append(" kcal, Protein: ").append(day.get("totalProtein"))
+                            .append(" g, Karbonhidrat: ").append(day.get("totalCarbs"))
+                            .append(" g, Yağ: ").append(day.get("totalFat"))
+                            .append(" g\n");
+                }
+
+                prompt.append("\nBu verilere göre kullanıcının beslenme alışkanlıklarını değerlendir ve 2-3 öneride bulun.");
+
+                getChatbotReply(prompt.toString(), callback);
+            }
+
+            @Override
+            public void onFailure(String error) {
+                callback.onError("Veriler alınamadı: " + error);
+            }
+        });
+    }
+
+
+
+
 
 }

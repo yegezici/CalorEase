@@ -30,6 +30,10 @@ public class MealDetailActivity extends AppCompatActivity {
         mealId = getIntent().getStringExtra("mealId");
         mealName = getIntent().getStringExtra("mealName");
         mealCategory = getIntent().getStringExtra("mealCategory");
+        double calories = getIntent().getDoubleExtra("calories", 0.0);
+        double carbs = getIntent().getDoubleExtra("carbs", 0.0);
+        double protein = getIntent().getDoubleExtra("protein", 0.0);
+        double fat = getIntent().getDoubleExtra("fat", 0.0);
 
         mealNameTextView.setText(mealName);
 
@@ -41,7 +45,7 @@ public class MealDetailActivity extends AppCompatActivity {
             }
 
             int quantity = Integer.parseInt(quantityText);
-            DatabaseManager.getInstance().addMealInstance(mealId, quantity, mealCategory, new DatabaseManager.DatabaseCallback() {
+            DatabaseManager.getInstance().addMealInstance(mealId, quantity,calories*quantity/100,carbs,protein,fat, mealCategory, new DatabaseManager.DatabaseCallback() {
                 @Override
                 public void onSuccess() {
                     Toast.makeText(MealDetailActivity.this, mealName + " eklendi!", Toast.LENGTH_SHORT).show();

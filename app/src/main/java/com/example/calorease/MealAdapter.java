@@ -48,7 +48,23 @@ public class MealAdapter extends RecyclerView.Adapter<MealAdapter.MealViewHolder
             Intent intent = new Intent(context, MealDetailActivity.class);
             intent.putExtra("mealId", meal.getMealId()); // mealId gönderiyoruz
             intent.putExtra("mealName", meal.getName());
-            intent.putExtra("mealCategory", selectedCategory); // HATALI KISIM DÜZELTİLDİ
+            intent.putExtra("mealCategory", selectedCategory);
+
+            double calories = Double.parseDouble(meal.getCalories().replaceAll("[^\\d.]", ""));
+            double carbs = Double.parseDouble(meal.getCarbs().replaceAll("[^\\d.]", ""));
+            double protein = Double.parseDouble(meal.getProtein().replaceAll("[^\\d.]", ""));
+            double fat = Double.parseDouble(meal.getFat().replaceAll("[^\\d.]", ""));
+
+            intent.putExtra("mealId", meal.getMealId());
+            intent.putExtra("mealName", meal.getName());
+
+            intent.putExtra("calories", calories);
+            intent.putExtra("carbs", carbs);
+            intent.putExtra("protein", protein);
+            intent.putExtra("fat", fat);
+
+
+
             context.startActivity(intent);
         });
     }
