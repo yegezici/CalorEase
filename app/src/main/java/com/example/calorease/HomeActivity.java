@@ -139,20 +139,14 @@ public class HomeActivity extends AppCompatActivity {
     }
 
 
-    private void loadTodayMealsAndUpdateProgress() {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user == null) return;
-
-        String userId = user.getUid();
-        String today = getTodayDate();
-
+    private void loadTodaySummary() {
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        String today = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
 
         DatabaseManager.getInstance().fetchTodaySummary(userId, today, new DatabaseManager.MealStatsCallback() {
             @Override
-
             public void onSuccess(double calories, double carbs, double protein, double fat) {
                 updateProgress(calories, protein, carbs, fat);
-
             }
 
             @Override
@@ -169,7 +163,7 @@ public class HomeActivity extends AppCompatActivity {
 
         textCalorieRatio.setText(calories + " / " + dailyCalorieGoal + " kcal");
 
-        float percent = (dailyCalorieGoal > 0) ? (calories * 100f / dailyCalorieGoal) : 0f;
+        double percent = (dailyCalorieGoal > 0) ? (calories * 100f / dailyCalorieGoal) : 0f;
 
         if (percent <= 25) {
             progressCalories.setProgressDrawable(getDrawable(R.drawable.progress_danger));
