@@ -244,15 +244,6 @@
             android:tint="#4CAF50"
             android:scaleType="centerInside" />
 
-        <ImageButton
-            android:id="@+id/btn_add_recipe"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:layout_margin="8dp"
-            android:background="@drawable/bg_circle_button"
-            android:src="@drawable/common_google_signin_btn_icon_light"
-            android:tint="#4CAF50"
-            android:scaleType="centerInside" />
     </LinearLayout>
 
     <!-- Günlük Motivasyon Kartı -->
@@ -277,7 +268,9 @@
             android:padding="16dp"
             android:text="Günün ipucu: Yavaş yemek daha az kalori almanı sağlar 🥗"
             android:textSize="16sp"
-            android:textColor="#444" />
+            android:textColor="#212121"
+            android:background="#FAFAFA"
+            />
     </androidx.cardview.widget.CardView>
 
     <!-- Diyet Önerisi Butonu -->

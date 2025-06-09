@@ -19,10 +19,10 @@
         android:textSize="28sp"
         android:textStyle="bold"
         android:textColor="#212121"
+        android:layout_marginTop="32dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="32dp" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- E-posta -->
     <com.google.android.material.textfield.TextInputLayout
@@ -30,16 +30,17 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:hint="E-posta"
+        android:layout_marginTop="32dp"
         app:layout_constraintTop_toBottomOf="@id/loginTitle"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="32dp">
+        app:layout_constraintEnd_toEndOf="parent">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/emailEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textEmailAddress"/>
+            android:inputType="textEmailAddress"
+            android:textColor="#212121" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <!-- Şifre -->
@@ -49,16 +50,17 @@
         android:layout_height="wrap_content"
         android:hint="Şifre"
         app:passwordToggleEnabled="true"
+        android:layout_marginTop="16dp"
         app:layout_constraintTop_toBottomOf="@id/emailLayout"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp">
+        app:layout_constraintEnd_toEndOf="parent">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/passwordEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textPassword"/>
+            android:inputType="textPassword"
+            android:textColor="#212121" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <!-- Giriş Yap Butonu -->
@@ -70,11 +72,12 @@
         android:textColor="#FFFFFF"
         android:backgroundTint="#212121"
         app:cornerRadius="24dp"
+        android:layout_marginTop="32dp"
         app:layout_constraintTop_toBottomOf="@id/passwordLayout"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="32dp"/>
+        app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- Beni Hatırla -->
     <CheckBox
         android:id="@+id/checkbox_remember_me"
         android:layout_width="wrap_content"
@@ -83,8 +86,6 @@
         android:layout_marginTop="16dp"
         app:layout_constraintTop_toBottomOf="@id/loginButton"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
-
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

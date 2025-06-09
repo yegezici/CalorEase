@@ -5,14 +5,20 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
-    android:background="#FAFAFA">
+    android:background="@drawable/bg_gradient">
 
     <!-- Tarih Seç Butonu -->
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/button_select_date"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Tarih Seç"
+        android:textColor="#FFFFFF"
+        android:textAllCaps="false"
+        android:textSize="14sp"
+        app:backgroundTint="#4CAF50"
+        app:cornerRadius="12dp"
+        app:iconPadding="8dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"/>
 
@@ -25,31 +31,39 @@
         android:textSize="18sp"
         android:textStyle="bold"
         android:textColor="#212121"
+        android:shadowColor="#BDBDBD"
+        android:shadowDx="1"
+        android:shadowDy="1"
+        android:shadowRadius="1"
+        android:layout_marginStart="16dp"
         app:layout_constraintStart_toEndOf="@id/button_select_date"
-        app:layout_constraintTop_toTopOf="@id/button_select_date"
-        android:layout_marginStart="16dp"/>
+        app:layout_constraintTop_toTopOf="@id/button_select_date" />
 
     <!-- TabLayout -->
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tab_layout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        app:tabIndicatorColor="#4CAF50"
+        app:tabSelectedTextColor="#4CAF50"
+        app:tabTextColor="#757575"
         app:tabMode="fixed"
         app:tabGravity="fill"
+        android:background="@drawable/bg_card"
         app:layout_constraintTop_toBottomOf="@id/button_select_date"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"/>
+        android:layout_marginTop="16dp" />
 
     <!-- ViewPager2 -->
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/view_pager"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_marginTop="8dp"
         app:layout_constraintTop_toBottomOf="@id/tab_layout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginTop="8dp"/>
+        app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
