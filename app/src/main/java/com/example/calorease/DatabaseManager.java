@@ -435,7 +435,7 @@ public class DatabaseManager {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         List<String> last7Dates = new ArrayList<>();
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
         Calendar calendar = Calendar.getInstance();
 
         for (int i = 0; i < 7; i++) {
@@ -475,17 +475,52 @@ public class DatabaseManager {
         }
     }
 
-    private double getDoubleOrZero(Object val) {
-        if (val instanceof Number) return ((Number) val).doubleValue();
-        try {
-            return Double.parseDouble(String.valueOf(val));
-        } catch (Exception e) {
-            return 0.0;
+    private double getDoubleOrZero(Object value) {
+        if (value instanceof Number) {
+            return ((Number) value).doubleValue();
         }
+        return 0.0;
     }
+
 
     public interface MealStatsListCallback {
         void onSuccess(List<Map<String, Object>> summaries);
+        void onFailure(String error);
+    }
+    public void fetchTodaySummary(String userId, MealStatsCallback2 callback) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+        String today = sdf.format(Calendar.getInstance().getTime());
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collection("MealInstances")
+                .document(userId)
+                .collection(today)
+                .document("summary")
+                .get()
+                .addOnSuccessListener(doc -> {
+                    if (doc.exists()) {
+                        Map<String, Object> data = new HashMap<>();
+                        data.put("date", today);
+                        data.put("totalCalories", getDoubleOrZero(doc.get("totalCalories")));
+                        data.put("totalProtein", getDoubleOrZero(doc.get("totalProtein")));
+                        data.put("totalCarbs", getDoubleOrZero(doc.get("totalCarbs")));
+                        data.put("totalFat", getDoubleOrZero(doc.get("totalFat")));
+                        callback.onSuccess(data);
+                    } else {
+                        callback.onFailure("Bugünün summary verisi bulunamadı.");
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    callback.onFailure("Veri alınırken hata oluştu: " + e.getMessage());
+                });
+    }
+
+    // Yardımcı fonksiyon:
+
+    // Callback arayüzü:
+    public interface MealStatsCallback2 {
+        void onSuccess(Map<String, Object> summary);
         void onFailure(String error);
     }
 

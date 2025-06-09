@@ -108,6 +108,32 @@ public class Chatbot {
     }
 
 
+    public void askTodayBasedOnCalorie(String userId, ChatbotCallback callback) {
+        DatabaseManager.getInstance().fetchTodaySummary(userId, new DatabaseManager.MealStatsCallback2() {
+            @Override
+            public void onSuccess(Map<String, Object> summary) {
+                String date = (String) summary.get("date");
+
+                StringBuilder prompt = new StringBuilder();
+                prompt.append("Aşağıda bir kullanıcının bugünkü (")
+                        .append(date)
+                        .append(") kalori ve makro (protein, karbonhidrat, yağ) değerleri verilmiştir:\n\n")
+                        .append("Kalori: ").append(summary.get("totalCalories")).append(" kcal\n")
+                        .append("Protein: ").append(summary.get("totalProtein")).append(" g\n")
+                        .append("Karbonhidrat: ").append(summary.get("totalCarbs")).append(" g\n")
+                        .append("Yağ: ").append(summary.get("totalFat")).append(" g\n\n")
+                        .append("Bu verilere göre kullanıcının bugünkü beslenme durumu hakkında değerlendirme yap ve 2-3 öneride bulun.");
+
+                getChatbotReply(prompt.toString(), callback);
+            }
+
+            @Override
+            public void onFailure(String error) {
+                callback.onError("Veri alınamadı: " + error);
+            }
+        });
+    }
+
 
 
 

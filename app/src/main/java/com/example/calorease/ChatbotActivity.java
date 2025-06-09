@@ -9,9 +9,14 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.util.Objects;
+
 public class ChatbotActivity extends AppCompatActivity {
 
-    private Button buttonRequestSuggestion;
+    private Button buttonLast7Days;
+    private Button buttonToday;
+    private Button buttonAnalyze30;
+    private Button button;
     private TextView textChatbotResponse;
 
     @Override
@@ -19,14 +24,17 @@ public class ChatbotActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chatbot);
 
-        buttonRequestSuggestion = findViewById(R.id.button_request_suggestion);
+        buttonLast7Days = findViewById(R.id.buttonLast7);
+        buttonToday = findViewById(R.id.buttonToday);
+        buttonAnalyze30 = findViewById(R.id.buttonAnalyze30);
+        button = findViewById(R.id.button1);
         textChatbotResponse = findViewById(R.id.text_chatbot_response);
 
-        buttonRequestSuggestion.setOnClickListener(new View.OnClickListener() {
+        buttonLast7Days.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Chatbot chatbot = new Chatbot();
-                String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                String userId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
 
                 chatbot.askLast7DaysBasedOnCalorie(userId, new Chatbot.ChatbotCallback() {
                     @Override
@@ -41,5 +49,29 @@ public class ChatbotActivity extends AppCompatActivity {
                 });
             }
         });
+
+
+
+        buttonToday.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Chatbot chatbot = new Chatbot();
+                String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+                chatbot.askTodayBasedOnCalorie(userId, new Chatbot.ChatbotCallback() {
+                    @Override
+                    public void onResponse(String response) {
+                        runOnUiThread(() -> textChatbotResponse.setText(response));
+                    }
+
+                    @Override
+                    public void onError(String error) {
+                        runOnUiThread(() -> textChatbotResponse.setText("Hata: " + error));
+                    }
+                });
+            }
+        });
+
+
     }
 }

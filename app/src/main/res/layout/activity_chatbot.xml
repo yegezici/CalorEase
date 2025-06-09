@@ -9,31 +9,95 @@
     android:padding="24dp"
     tools:context=".ChatbotActivity">
 
-    <Button
-        android:id="@+id/button_request_suggestion"
+    <!-- Başlık -->
+    <TextView
+        android:id="@+id/text_header"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Bana diyet önerisi ver"
+        android:text="CalorEase Assistant"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textAlignment="center"
+        android:textColor="#333333"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <TextView
-        android:id="@+id/text_chatbot_response"
+    <!-- Scrollable yanıt kutusu -->
+    <ScrollView
+        android:id="@+id/scroll_view_response"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="16dp"
-        android:text="Chatbot cevabı burada görünecek..."
-        android:textSize="16sp"
-        android:textColor="#000000"
         android:background="#f1f1f1"
-        android:padding="16dp"
-        android:gravity="start|top"
-        android:scrollbars="vertical"
-        android:overScrollMode="always"
-        app:layout_constraintTop_toBottomOf="@id/button_request_suggestion"
+        android:padding="8dp"
+        android:layout_marginTop="12dp"
+        app:layout_constraintTop_toBottomOf="@id/text_header"
+        app:layout_constraintBottom_toTopOf="@+id/button1"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:id="@+id/text_chatbot_response"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Chatbot cevabı burada görünecek..."
+            android:textSize="16sp"
+            android:textColor="#000000"
+            android:padding="8dp"
+            android:gravity="start|top" />
+    </ScrollView>
+
+    <!-- Butonlar -->
+    <Button
+        android:id="@+id/button1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Sık sorulan 1"
+        android:backgroundTint="#7B42F6"
+        android:textColor="#FFFFFF"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp"
+        android:background="@drawable/rounded_button"
+        app:layout_constraintBottom_toTopOf="@+id/buttonAnalyze30"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <Button
+        android:id="@+id/buttonAnalyze30"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Kalori hedefime ulaşmam için uzun ve kısa vadede neler yapmalıyım?"
+        android:backgroundTint="#7B42F6"
+        android:textColor="#FFFFFF"
+        android:layout_marginBottom="4dp"
+        android:background="@drawable/rounded_button"
+        app:layout_constraintBottom_toTopOf="@+id/buttonLast7"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <Button
+        android:id="@+id/buttonLast7"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Son 1 haftamı analiz et."
+        android:backgroundTint="#7B42F6"
+        android:textColor="#FFFFFF"
+        android:layout_marginBottom="4dp"
+        android:background="@drawable/rounded_button"
+        app:layout_constraintBottom_toTopOf="@+id/buttonToday"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <Button
+        android:id="@+id/buttonToday"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Bugün Yediklerimi Analiz Et."
+        android:backgroundTint="#7B42F6"
+        android:textColor="#FFFFFF"
+        android:background="@drawable/rounded_button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
