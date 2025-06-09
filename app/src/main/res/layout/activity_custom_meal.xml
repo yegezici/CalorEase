@@ -1,70 +1,141 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="24dp"
-    android:background="#FAFAFA">
+    android:background="#E8F5E9"
+    android:padding="24dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:gravity="center_horizontal">
 
-        <EditText
-            android:id="@+id/edit_meal_name"
+        <!-- Başlık -->
+        <TextView
+            android:id="@+id/text_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Özel Yemek Girişi"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="#004D40"
+            android:layout_marginBottom="24dp"
+            android:layout_marginTop="16dp" />
+
+        <!-- Form Alanları -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Yemek Adı"
-            android:inputType="textCapWords" />
+            app:boxStrokeColor="#388E3C"
+            app:boxBackgroundColor="#F0FFF0"
+            >
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edit_meal_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapWords" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <EditText
-            android:id="@+id/edit_calories"
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Kalori (kcal)"
-            android:inputType="number" />
+            android:layout_marginTop="8dp"
+            app:boxStrokeColor="#388E3C"
+            app:boxBackgroundColor="#F0FFF0">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edit_calories"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- ✅ Yeni eklendi -->
         <CheckBox
             android:id="@+id/checkbox_unknown_calories"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Kalori bilgisini bilmiyorum"
-            android:layout_marginTop="8dp"/>
+            android:layout_marginTop="6dp"
+            android:textColor="#004D40" />
 
-
-        <EditText
-            android:id="@+id/edit_protein"
+        <!-- Makrolar -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Protein (g)"
-            android:inputType="number" />
+            android:layout_marginTop="8dp"
+            app:boxStrokeColor="#388E3C"
+            app:boxBackgroundColor="#F0FFF0">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edit_protein"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <EditText
-            android:id="@+id/edit_carbs"
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Karbonhidrat (g)"
-            android:inputType="number" />
+            android:layout_marginTop="8dp"
+            app:boxStrokeColor="#388E3C"
+            app:boxBackgroundColor="#F0FFF0">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edit_carbs"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <EditText
-            android:id="@+id/edit_fat"
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Yağ (g)"
-            android:inputType="number" />
+            android:layout_marginTop="8dp"
+            app:boxStrokeColor="#388E3C"
+            app:boxBackgroundColor="#F0FFF0">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edit_fat"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <EditText
-            android:id="@+id/edit_quantity"
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Porsiyon Miktarı (gram)"
-            android:inputType="number" />
+            android:layout_marginTop="8dp"
+            app:boxStrokeColor="#388E3C"
+            app:boxBackgroundColor="#F0FFF0">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edit_quantity"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <Button
+        <!-- Kaydet Butonu -->
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_save_custom_meal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Yemeği Ekle"
-            android:layout_marginTop="24dp"/>
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:layout_marginTop="16dp"
+            android:backgroundTint="#66BB6A"
+            app:cornerRadius="12dp"
+            app:icon="@drawable/ic_check"
+            app:iconTint="#FFFFFF"
+            app:iconPadding="8dp"/>
     </LinearLayout>
 </ScrollView>

@@ -95,12 +95,9 @@ public class DatabaseManager {
                 .add(mealEntry)
                 .addOnSuccessListener(unused -> {
                     // Toplam değerleri güncelle
-                    double totalCalories = calories * quantity;
-                    double totalCarbs = carbs * quantity;
-                    double totalProtein = protein * quantity;
-                    double totalFat = fat * quantity;
 
-                    updateTotalStats(totalCalories, totalCarbs, totalProtein, totalFat, new DatabaseCallback() {
+
+                    updateTotalStats(calories, carbs, protein, fat, new DatabaseCallback() {
                         @Override
                         public void onSuccess() {
                             callback.onSuccess();
