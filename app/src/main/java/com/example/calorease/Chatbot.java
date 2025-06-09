@@ -136,5 +136,41 @@ public class Chatbot {
 
 
 
+    public void askMonthlyCalorieAdvice(String userId, ChatbotCallback callback) {
+        DatabaseManager.getInstance().fetchMonthlyCaloriesWithGoal(userId, new DatabaseManager.MonthlyWithGoalCallback() {
+            @Override
+            public void onSuccess(double calorieGoal, List<Double> dailyCalories) {
+                double total = 0;
+                for (double cal : dailyCalories) {
+                    total += cal;
+                }
+
+                double average = total / dailyCalories.size();
+
+                StringBuilder prompt = new StringBuilder();
+                prompt.append("Kullanıcının günlük kalori hedefi: ").append(calorieGoal).append(" kcal\n");
+                prompt.append("Son 30 gün boyunca alınan günlük kaloriler:\n");
+
+                for (int i = 0; i < dailyCalories.size(); i++) {
+                    prompt.append((i + 1)).append(". gün: ").append(dailyCalories.get(i)).append(" kcal\n");
+                }
+
+                prompt.append("\nOrtalama günlük kalori alımı: ").append(average).append(" kcal\n");
+                prompt.append("Kalori hedefiyle kıyasla genel bir analiz yap. Kullanıcının hedefe ne kadar sadık kaldığını değerlendir.\n");
+                prompt.append("Ardından kısa vadeli (haftalık) ve uzun vadeli (aylık) önerilerde bulun. İyileştirme, devam ettirme ya da risk uyarıları olabilir. Motive edici bir dille yaz.");
+
+                getChatbotReply(prompt.toString(), callback);
+            }
+
+            @Override
+            public void onFailure(String error) {
+                callback.onError("Veri alınamadı: " + error);
+            }
+        });
+    }
 
 }
+
+
+
+

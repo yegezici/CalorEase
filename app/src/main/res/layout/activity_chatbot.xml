@@ -9,7 +9,6 @@
     android:padding="24dp"
     tools:context=".ChatbotActivity">
 
-    <!-- Başlık -->
     <TextView
         android:id="@+id/text_header"
         android:layout_width="0dp"
@@ -23,7 +22,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Scrollable yanıt kutusu -->
     <ScrollView
         android:id="@+id/scroll_view_response"
         android:layout_width="0dp"
@@ -32,7 +30,7 @@
         android:padding="8dp"
         android:layout_marginTop="12dp"
         app:layout_constraintTop_toBottomOf="@id/text_header"
-        app:layout_constraintBottom_toTopOf="@+id/button1"
+        app:layout_constraintBottom_toTopOf="@+id/buttonAnalyze30"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
@@ -47,30 +45,15 @@
             android:gravity="start|top" />
     </ScrollView>
 
-    <!-- Butonlar -->
-    <Button
-        android:id="@+id/button1"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Sık sorulan 1"
-        android:backgroundTint="#7B42F6"
-        android:textColor="#FFFFFF"
-        android:layout_marginTop="4dp"
-        android:layout_marginBottom="4dp"
-        android:background="@drawable/rounded_button"
-        app:layout_constraintBottom_toTopOf="@+id/buttonAnalyze30"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
     <Button
         android:id="@+id/buttonAnalyze30"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Kalori hedefime ulaşmam için uzun ve kısa vadede neler yapmalıyım?"
-        android:backgroundTint="#7B42F6"
         android:textColor="#FFFFFF"
-        android:layout_marginBottom="4dp"
+        android:backgroundTint="#7B42F6"
         android:background="@drawable/rounded_button"
+        android:layout_marginBottom="4dp"
         app:layout_constraintBottom_toTopOf="@+id/buttonLast7"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -80,10 +63,10 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Son 1 haftamı analiz et."
-        android:backgroundTint="#7B42F6"
         android:textColor="#FFFFFF"
-        android:layout_marginBottom="4dp"
+        android:backgroundTint="#7B42F6"
         android:background="@drawable/rounded_button"
+        android:layout_marginBottom="4dp"
         app:layout_constraintBottom_toTopOf="@+id/buttonToday"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -93,8 +76,8 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Bugün Yediklerimi Analiz Et."
-        android:backgroundTint="#7B42F6"
         android:textColor="#FFFFFF"
+        android:backgroundTint="#7B42F6"
         android:background="@drawable/rounded_button"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"

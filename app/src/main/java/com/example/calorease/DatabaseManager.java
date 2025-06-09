@@ -525,5 +525,59 @@ public class DatabaseManager {
     }
 
 
+    public void fetchMonthlyCaloriesWithGoal(String userId, MonthlyWithGoalCallback callback) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collection("Users")
+                .document(userId)
+                .get()
+                .addOnSuccessListener(userDoc -> {
+                    if (userDoc.exists() && userDoc.contains("dailyCalorieGoal")) {
+                        double calorieGoal = userDoc.getDouble("dailyCalorieGoal");
+
+                        // 30 gün oluştur
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+                        Calendar calendar = Calendar.getInstance();
+                        List<String> last30Days = new ArrayList<>();
+                        for (int i = 0; i < 30; i++) {
+                            last30Days.add(sdf.format(calendar.getTime()));
+                            calendar.add(Calendar.DATE, -1);
+                        }
+
+                        List<Double> dailyCalories = new ArrayList<>();
+                        final int[] completed = {0};
+
+                        for (String date : last30Days) {
+                            db.collection("MealInstances")
+                                    .document(userId)
+                                    .collection(date)
+                                    .document("summary")
+                                    .get()
+                                    .addOnSuccessListener(doc -> {
+                                        dailyCalories.add(getDoubleOrZero(doc.get("totalCalories")));
+                                        completed[0]++;
+                                        if (completed[0] == last30Days.size()) {
+                                            callback.onSuccess(calorieGoal, dailyCalories);
+                                        }
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        dailyCalories.add(0.0);
+                                        completed[0]++;
+                                        if (completed[0] == last30Days.size()) {
+                                            callback.onSuccess(calorieGoal, dailyCalories);
+                                        }
+                                    });
+                        }
+                    } else {
+                        callback.onFailure("Kullanıcı hedefi (dailyCalorieGoal) bulunamadı.");
+                    }
+                })
+                .addOnFailureListener(e -> callback.onFailure("Kullanıcı verisi alınamadı: " + e.getMessage()));
+    }
+    public interface MonthlyWithGoalCallback {
+        void onSuccess(double calorieGoal, List<Double> dailyCalories);
+        void onFailure(String error);
+    }
+
 
 }
