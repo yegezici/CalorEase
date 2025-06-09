@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/nav_home"
+            android:icon="@drawable/ic_home"
+            android:title="Ana Sayfa" />
+
+        <item
+            android:id="@+id/nav_add_meal"
+            android:icon="@drawable/ic_add_food"
+            android:title="Yemek Ekle" />
+
+        <item
+            android:id="@+id/nav_add_water"
+            android:icon="@drawable/ic_add_water"
+            android:title="Su Ekle" />
+
+        <item
+            android:id="@+id/nav_recommendation"
+            android:icon="@drawable/ic_chatbot"
+            android:title="Diyet Önerisi" />
+
+        <item
+            android:id="@+id/nav_stats"
+            android:icon="@drawable/ic_stats"
+            android:title="İstatistikler" />
+
+        <item
+            android:id="@+id/nav_logout"
+            android:icon="@drawable/ic_logout"
+            android:title="Çıkış Yap" />
+
+    </group>
+
+</menu>

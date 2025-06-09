@@ -19,4 +19,8 @@ public class DietMeal {
         this.carbs = carbs;
         this.fat = fat;
     }
+    public double getCaloriesPer100g() {
+        return calories; // kalori değeri zaten 100g bazlı ise
+    }
+
 }
