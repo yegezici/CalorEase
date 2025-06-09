@@ -45,6 +45,8 @@
         <activity android:name=".SelectMealOptionActivity" />
         <activity android:name=".CustomMealActivity" />
         <activity android:name=".AddWaterActivity" />
+        <activity android:name=".StatsActivity" />
+
 
         <activity
             android:name=".MainActivity"
