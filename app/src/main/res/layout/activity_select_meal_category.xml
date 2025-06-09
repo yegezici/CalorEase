@@ -1,9 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FAFAFA">
+    android:background="#E8F5E9"
+    android:padding="24dp">
 
     <!-- Başlık -->
     <TextView
@@ -11,75 +13,81 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Bir Öğün Seçin"
-        android:textSize="24sp"
+        android:textSize="26sp"
         android:textStyle="bold"
-        android:textColor="#212121"
+        android:textColor="#1B5E20"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/guideline_center"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="32dp" />
+        android:layout_marginBottom="12dp"/>
 
-    <!-- Kahvaltı Butonu -->
+    <!-- Merkez hizalamayı sağlayan rehber -->
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline_center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.5" />
+
+    <!-- Butonlar için dikey zincir -->
     <Button
         android:id="@+id/btn_breakfast"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="🍳 Kahvaltı"
-        android:backgroundTint="#76C7C0"
-        android:textColor="#FFFFFF"
         android:textSize="18sp"
-        android:layout_marginTop="32dp"
-        app:layout_constraintTop_toBottomOf="@id/text_title"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#66BB6A"
+        app:layout_constraintTop_toBottomOf="@+id/guideline_center"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp"
         android:layout_marginStart="32dp"
         android:layout_marginEnd="32dp" />
 
-    <!-- Öğle Yemeği Butonu -->
     <Button
         android:id="@+id/btn_lunch"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="🍛 Öğle Yemeği"
-        android:backgroundTint="#76C7C0"
-        android:textColor="#FFFFFF"
         android:textSize="18sp"
-        android:layout_marginTop="16dp"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#66BB6A"
         app:layout_constraintTop_toBottomOf="@id/btn_breakfast"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp"
         android:layout_marginStart="32dp"
         android:layout_marginEnd="32dp" />
 
-    <!-- Akşam Yemeği Butonu -->
     <Button
         android:id="@+id/btn_dinner"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="🍲 Akşam Yemeği"
-        android:backgroundTint="#76C7C0"
-        android:textColor="#FFFFFF"
         android:textSize="18sp"
-        android:layout_marginTop="16dp"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#66BB6A"
         app:layout_constraintTop_toBottomOf="@id/btn_lunch"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp"
         android:layout_marginStart="32dp"
         android:layout_marginEnd="32dp" />
 
-    <!-- Atıştırmalık Butonu -->
     <Button
         android:id="@+id/btn_snack"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="🍪 Atıştırmalık"
-        android:backgroundTint="#76C7C0"
-        android:textColor="#FFFFFF"
         android:textSize="18sp"
-        android:layout_marginTop="16dp"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#66BB6A"
         app:layout_constraintTop_toBottomOf="@id/btn_dinner"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp"
         android:layout_marginStart="32dp"
         android:layout_marginEnd="32dp" />
 
